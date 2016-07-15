@@ -61,4 +61,4 @@ You will find the output files in the sub-directory `.build\SARA_NBIOT_EVK\GCC_A
   `BUILD_OPTIONS = ["debug-info"]`
 
   ...which will get debug output into the `.elf` file and switch optimisation off so that you can use a debugger.
-* Eclipse project files are included but I generalyl bu
+* Eclipse project files are included but you can also build from the command-line as above.
