@@ -131,7 +131,7 @@ static uint32_t * checkRam(uint32_t *pMem, size_t memorySize)
     {
         // Write a walking 1 pattern
         value = 1;
-        for (pLocation = pMem; pLocation < pMem + memorySize; pLocation++)
+        for (pLocation = pMem; pLocation < pMem + memorySize / sizeof (*pLocation); pLocation++)
         {
             *pLocation = value;
             value <<= 1;
@@ -143,7 +143,7 @@ static uint32_t * checkRam(uint32_t *pMem, size_t memorySize)
 
         // Read the walking 1 pattern
         value = 1;
-        for (pLocation = pMem; pLocation < pMem + memorySize; pLocation++)
+        for (pLocation = pMem; pLocation < pMem + memorySize / sizeof (*pLocation); pLocation++)
         {
             value <<= 1;
             if (value == 0)
@@ -156,7 +156,7 @@ static uint32_t * checkRam(uint32_t *pMem, size_t memorySize)
         {
             // Write an inverted walking 1 pattern
             value = 1;
-            for (pLocation = pMem; pLocation < pMem + memorySize; pLocation++)
+            for (pLocation = pMem; pLocation < pMem + memorySize / sizeof (*pLocation); pLocation++)
             {
                 *pLocation = ~value;
                 value <<= 1;
@@ -168,7 +168,7 @@ static uint32_t * checkRam(uint32_t *pMem, size_t memorySize)
 
             // Read the inverted walking 1 pattern
             value = 1;
-            for (pLocation = pMem; (pLocation < pMem + memorySize) && (*pLocation == ~value); pLocation++)
+            for (pLocation = pMem; (pLocation < pMem + memorySize / sizeof (*pLocation)) && (*pLocation == ~value); pLocation++)
             {
                 value <<= 1;
                 if (value == 0)
@@ -178,7 +178,7 @@ static uint32_t * checkRam(uint32_t *pMem, size_t memorySize)
             }
         }
 
-        if (pLocation >= pMem + memorySize)
+        if (pLocation >= pMem + memorySize / sizeof (*pLocation))
         {
             pLocation = NULL;
         }
@@ -209,6 +209,7 @@ int main(void)
 
     checkCpu();
 
+#if 0
     printf("*** Checking heap size available.\n");
     memorySize = checkHeapSize();
 
@@ -218,7 +219,7 @@ int main(void)
     {
         pMem = (uint32_t *) malloc(memorySize);
         printf("*** Checking available heap RAM, from 0x%08lx to 0x%08lx.\n", (uint32_t) pMem, (uint32_t) pMem + memorySize);
-        printf("    (the last variable pushed onto the stack is at 0x%08lx, MSP is at 0x%08lx, PSP is at 0x%08lx).\n", (uint32_t) &pRamResult, __get_MSP(), __get_PSP());
+        printf("    (the last variable pushed onto the stack is at 0x%08lx, MSP is at 0x%08lx, errno is %d).\n", (uint32_t) &pRamResult, __get_MSP(), errno);
         if (pMem != NULL)
         {
             pRamResult = checkRam(pMem, memorySize);
@@ -233,6 +234,7 @@ int main(void)
             printf("!!! Unable to malloc() %d byte(s).\n", memorySize);
         }
     }
+#endif
 
     printf("*** Running us_ticker at 100 usecond intervals for 2 seconds...\n");
 
