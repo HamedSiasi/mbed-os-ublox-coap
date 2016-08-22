@@ -16,16 +16,14 @@ The repo structure is quite confusing; it goes like this:
 
 `mbed add https://github.com/ARMmbed/mbed-ublox mbed-os`
 
-You will end up with what looks like an `mbed-os` directory but which contains the code from [https://github.com/ARMmbed/mbed-ublox] instead.
+You will end up with what looks like an `mbed-os` directory but which contains the code from https://github.com/ARMmbed/mbed-ublox instead.
 
 # Building This Code
 Once you have cloned this repo, `cd` to the repo directory and enter the following.
 
 `mbed update`
 
-This will fetch the latest code from  [https://github.com/ARMmbed/mbed-ublox], recursing as necessary.
-
-Having done that, `cd` your way back to the top-level repo directory once more.
+This will fetch the latest code from https://github.com/ARMmbed/mbed-ublox, recursing as necessary.
 
 You need to set the target and the toolchain that you want to use.  The target and toolchain we'd like to use this application on is `SARA_NBIOT_EVK` and the toolchain is `GCC_ARM`.  Of course, in future we will support the u-blox targets on other toolchains (e.g. ARM, microVision, IAR) and, equally, if there's another target you happen to be using, exactly the same application code can be used on that target.  To get a list of supported targets and their toolchains enter `mbed compile -S`.
 
