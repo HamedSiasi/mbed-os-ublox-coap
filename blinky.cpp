@@ -209,7 +209,6 @@ int main(void)
 
     checkCpu();
 
-#if 0
     printf("*** Checking heap size available.\n");
     memorySize = checkHeapSize();
 
@@ -234,7 +233,6 @@ int main(void)
             printf("!!! Unable to malloc() %d byte(s).\n", memorySize);
         }
     }
-#endif
 
     printf("*** Running us_ticker at 100 usecond intervals for 2 seconds...\n");
 
