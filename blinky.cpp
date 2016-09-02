@@ -1,258 +1,163 @@
-/*
- * PackageLicenseDeclared: Apache-2.0
- * Copyright (c) 2015 ARM Limited
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 #include "mbed.h"
-#include "errno.h"
+#include "sn_coap_protocol.h"
+#include "ublox/modem_driver.h"
+#include <stdlib.h>
+#include <string.h>
 
-// ----------------------------------------------------------------
-// GENERAL COMPILE-TIME CONSTANTS
-// ----------------------------------------------------------------
+#define DESTINATION "coap.me:5683"
+#define TOKEN "12345"
 
-// Things to do with the processing system
-#define SYSTEM_CONTROL_BLOCK_START_ADDRESS ((uint32_t *) 0xe000ed00)
-#define SYSTEM_RAM_SIZE_BYTES 16384
+static uint8_t*  gMsgPacket;
+static uint32_t  gMsgPacketSize;
+static int counter;
+static uint8_t readingData;
 
-// ----------------------------------------------------------------
-// TYPES
-// ----------------------------------------------------------------
 
-// Tick callback
-typedef void (*TickCallback_t)(uint32_t count);
-
-// ----------------------------------------------------------------
-// GLOBAL VARIABLES
-// ----------------------------------------------------------------
-
-// GPIO to toggle
-static DigitalOut gGpio(LED1);
-
-// Flipper to test uS delays
-static Ticker gFlipper;
-
-// ----------------------------------------------------------------
-// FUNCTION PROTOTYPES
-// ----------------------------------------------------------------
-
-static void checkCpu(void);
-static size_t checkHeapSize(void);
-static uint32_t * checkRam(uint32_t * pMem, size_t memorySize);
-static void flip(void);
-
-// ----------------------------------------------------------------
-// STATIC FUNCTIONS
-// ----------------------------------------------------------------
-
-// Check-out the characteristics of the CPU we're running on
-static void checkCpu()
+static void* myMalloc(uint16_t size)
 {
-    uint32_t x = 0x01234567;
-
-    printf("\n*** Printing stuff of interest about the CPU.\n");
-    if ((*(uint8_t *) &x) == 0x67)
-    {
-        printf("Little endian.\n");
-    }
-    else
-    {
-        printf("Big endian.\n");
-    }
-
-    // Read the system control block
-    // CPU ID register
-    printf("CPUID: 0x%08lx.\n", *(SYSTEM_CONTROL_BLOCK_START_ADDRESS));
-    // Interrupt control and state register
-    printf("ICSR: 0x%08lx.\n", *(SYSTEM_CONTROL_BLOCK_START_ADDRESS + 1));
-    // VTOR is not there, skip it
-    // Application interrupt and reset control register
-    printf("AIRCR: 0x%08lx.\n", *(SYSTEM_CONTROL_BLOCK_START_ADDRESS + 3));
-    // SCR is not there, skip it
-    // Configuration and control register
-    printf("CCR: 0x%08lx.\n", *(SYSTEM_CONTROL_BLOCK_START_ADDRESS + 5));
-    // System handler priority register 2
-    printf("SHPR2: 0x%08lx.\n", *(SYSTEM_CONTROL_BLOCK_START_ADDRESS + 6));
-    // System handler priority register 3
-    printf("SHPR3: 0x%08lx.\n", *(SYSTEM_CONTROL_BLOCK_START_ADDRESS + 7));
-    // System handler control and status register
-    printf("SHCSR: 0x%08lx.\n", *(SYSTEM_CONTROL_BLOCK_START_ADDRESS + 8));
-
-    printf("Last stack entry was at 0x%08lx.\n", (uint32_t) &x);
-    printf("A static variable is at 0x%08lx.\n", (uint32_t) &gFlipper);
+	return malloc(size);
 }
 
-// Check how much RAM can be malloc'ed
-static size_t checkHeapSize(void)
+static void myFree(void* addr)
 {
-    int32_t memorySize = SYSTEM_RAM_SIZE_BYTES;
-    void * pMem = NULL;
-
-    while ((pMem == NULL) && (memorySize > 0))
+    if( addr )
     {
-        pMem = malloc(memorySize);
-        if (pMem == NULL)
-        {
-            memorySize -= sizeof(uint32_t);
-        }
+        free(addr);
     }
-
-    if (pMem != NULL)
-    {
-        free(pMem);
-    }
-
-    if (memorySize < 0)
-    {
-        memorySize = 0;
-    }
-
-    return (size_t) memorySize;
 }
 
-// Check that the given area of RAM is good.
-static uint32_t * checkRam(uint32_t *pMem, size_t memorySize)
+static uint8_t tx_callback(uint8_t *a, uint16_t b, sn_nsdl_addr_s *c, void *d)
 {
-    uint32_t * pLocation = NULL;
-    uint32_t value;
-
-    if (pMem != NULL)
-    {
-        // Write a walking 1 pattern
-        value = 1;
-        for (pLocation = pMem; pLocation < pMem + memorySize / sizeof (*pLocation); pLocation++)
-        {
-            *pLocation = value;
-            value <<= 1;
-            if (value == 0)
-            {
-                value = 1;
-            }
-        }
-
-        // Read the walking 1 pattern
-        value = 1;
-        for (pLocation = pMem; pLocation < pMem + memorySize / sizeof (*pLocation); pLocation++)
-        {
-            value <<= 1;
-            if (value == 0)
-            {
-                value = 1;
-            }
-        }
-
-        if (pLocation >= pMem + memorySize / sizeof (uint32_t))
-        {
-            // Write an inverted walking 1 pattern
-            value = 1;
-            for (pLocation = pMem; pLocation < pMem + memorySize / sizeof (*pLocation); pLocation++)
-            {
-                *pLocation = ~value;
-                value <<= 1;
-                if (value == 0)
-                {
-                    value = 1;
-                }
-            }
-
-            // Read the inverted walking 1 pattern
-            value = 1;
-            for (pLocation = pMem; (pLocation < pMem + memorySize / sizeof (*pLocation)) && (*pLocation == ~value); pLocation++)
-            {
-                value <<= 1;
-                if (value == 0)
-                {
-                    value = 1;
-                }
-            }
-        }
-
-        if (pLocation >= pMem + memorySize / sizeof (*pLocation))
-        {
-            pLocation = NULL;
-        }
-    }
-
-    return pLocation;
+    return 0;
 }
 
-// Flip
-static void flip()
+static int8_t rx_callback(sn_coap_hdr_s *a, sn_nsdl_addr_s *b, void *c)
 {
-    gGpio = !gGpio;
+	return 0;
 }
 
-// ----------------------------------------------------------------
-// PUBLIC FUNCTIONS
-// ----------------------------------------------------------------
 
-int main(void)
+static bool modem(void){
+	bool status = false;
+	bool usingSoftRadio = true;
+
+	Nbiot *pModem = NULL;
+	if( !(pModem = new Nbiot()) )
+	{
+		printf ("[blinky->modem]  Out of Memory !!! \r\n");
+	}
+	else
+	{
+		status = pModem->connect(usingSoftRadio);
+		if (status)
+		{
+			status = pModem->send ( (char*)gMsgPacket, (uint32_t)gMsgPacketSize);
+			if(status)
+			{
+				char reply[128];
+				uint32_t replySize;
+
+				replySize = (uint32_t)pModem->receive ( reply, 128 );
+				if (replySize > 0)
+				{
+					printf ("\n ---> RX (%d bytes): \"%.*s\" \r\n\n", (int)replySize, (int)replySize, reply);
+				}
+			}
+			else
+			{
+				printf ("[blinky->modem]  Failed to send datagram !!!\r\n");
+			}
+		}
+		else
+		{
+			printf ("[blinky->modem]  Failed to connect to the network !!! \r\n");
+		}
+	}
+	delete (pModem);
+	return status;
+}
+
+
+static bool msgCoAP(
+		uint8_t              msgPayload,
+		uint16_t             msgPayloadSize,
+		sn_coap_msg_type_e   msgType,
+		sn_coap_msg_code_e   msgCode)
 {
-    Serial usb (USBTX, USBRX);
-    size_t memorySize;
-    uint32_t * pMem;
-    uint32_t * pRamResult;
+	bool status = false;
+	struct coap_s *handle = sn_coap_protocol_init(myMalloc, myFree, tx_callback, rx_callback);
+	if(handle)
+	{
+		// (2 arg)
+		sn_nsdl_addr_s dst_addr_ptr;
+		memset(&dst_addr_ptr, 0, sizeof(sn_nsdl_addr_s));
+		uint8_t temp_addr[4] = {0};
+		dst_addr_ptr.addr_ptr = temp_addr;
+		dst_addr_ptr.addr_len = (uint8_t)sizeof(temp_addr);
+		dst_addr_ptr.type = SN_NSDL_ADDRESS_TYPE_IPV4;
 
-    //usb.baud (115200);
-    usb.baud (9600);
+		// (3 arg)
+		uint8_t dst_packet_data_ptr[32];
 
-    checkCpu();
+		// (4 arg)
+		sn_coap_hdr_s hdr;
+		memset(&hdr, 0, sizeof(sn_coap_hdr_s));
+		hdr.msg_id = counter++;
+		hdr.payload_ptr = (uint8_t*)malloc(8);
+		memset(hdr.payload_ptr, msgPayload, 8);
+		hdr.payload_len = msgPayloadSize;
+		hdr.msg_type = msgType;
+		hdr.msg_code = COAP_MSG_CODE_REQUEST_POST;
+		//Here are most often used Options
+		char *myToken = TOKEN;
+		hdr.token_ptr = (uint8_t*)myToken;
+		hdr.token_len = strlen(myToken);
+		char *destination = DESTINATION;
+		hdr.uri_path_len = (uint16_t)strlen(destination);
+		hdr.uri_path_ptr = (uint8_t*)destination;
 
-    printf("*** Checking heap size available.\n");
-    memorySize = checkHeapSize();
 
-    printf("    %d byte(s) available.\n", memorySize);
+		int16_t  msgPacketBytes = sn_coap_protocol_build(handle, &dst_addr_ptr, dst_packet_data_ptr, &hdr, NULL);
+		if( (int)msgPacketBytes == -1)
+		{
+			 printf("[blinky->msgCoAP] Failure in CoAP header structure\r\n");
+		}
+		else if( (int)msgPacketBytes == -2)
+		{
+			 printf("[blinky->msgCoAP] Failure in given pointer (= NULL)\r\n");
+		}
+		else if( (int)msgPacketBytes == -3)
+		{
+			 printf("[blinky->msgCoAP] Failure in Reset message\r\n");
+		}
+		else
+		{
+			 gMsgPacket     = (uint8_t*) dst_packet_data_ptr;
+			 gMsgPacketSize = (uint32_t) msgPacketBytes;
+			 status = true;
+		}
+		sn_coap_protocol_destroy(handle);
+	}
+	return status;
+}
 
-    if (memorySize >= sizeof (uint32_t))
+static void msgTest(void)
+{
+	msgCoAP(++readingData, (uint16_t)sizeof(readingData), COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST);
+	modem();
+}
+
+int main(void){
+int x = 0;
+    while (true)
     {
-        pMem = (uint32_t *) malloc(memorySize);
-        printf("*** Checking available heap RAM, from 0x%08lx to 0x%08lx.\n", (uint32_t) pMem, (uint32_t) pMem + memorySize);
-        printf("    (the last variable pushed onto the stack is at 0x%08lx, MSP is at 0x%08lx, errno is %d).\n", (uint32_t) &pRamResult, __get_MSP(), errno);
-        if (pMem != NULL)
-        {
-            pRamResult = checkRam(pMem, memorySize);
-            if (pRamResult != NULL)
-            {
-                printf("!!! RAM check failure at location 0x%08lx (contents 0x%08lx).\n", (uint32_t) pRamResult, *pRamResult);
-                while(1) {};
-            }
-        }
-        else
-        {
-            printf("!!! Unable to malloc() %d byte(s).\n", memorySize);
-        }
+    	printf("*** %d HERE\r\n", x);
+    	msgTest();
+    	wait_ms(10000);
+    	printf("*** %d AND HERE\r\n", x);
+    	x++;
     }
-
-    printf("*** Running us_ticker at 100 usecond intervals for 2 seconds...\n");
-
-    /* Use a usecond delay function to check-out the us_ticker at high speed for a little while */
-    gFlipper.attach_us(&flip, 100);
-
-    wait(2);
-
-    gFlipper.attach_us(NULL, 0);
-
-    printf("*** Echoing received characters forever.\n");
-
-    while (1)
-    {
-        if (usb.readable() && usb.writeable())
-        {
-            char c = usb.getc();
-            usb.putc(c);
-        }
-    }
-    
     return -1;
 }
+
+

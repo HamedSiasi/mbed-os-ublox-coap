@@ -1,0 +1,75 @@
+[
+    {
+        "module": "Fill", 
+        "size": {
+            ".data": 0, 
+            ".bss": 19, 
+            ".text": 67
+        }
+    }, 
+    {
+        "module": "Misc", 
+        "size": {
+            ".data": 120, 
+            ".bss": 215, 
+            ".text": 25840
+        }
+    }, 
+    {
+        "module": "features/frameworks", 
+        "size": {
+            ".data": 92, 
+            ".bss": 824, 
+            ".text": 6114
+        }
+    }, 
+    {
+        "module": "features/net", 
+        "size": {
+            ".data": 0, 
+            ".bss": 0, 
+            ".text": 52
+        }
+    }, 
+    {
+        "module": "hal/common", 
+        "size": {
+            ".data": 4, 
+            ".bss": 381, 
+            ".text": 7771
+        }
+    }, 
+    {
+        "module": "hal/targets", 
+        "size": {
+            ".data": 4, 
+            ".bss": 115, 
+            ".text": 6012
+        }
+    }, 
+    {
+        "module": "rtos/rtos", 
+        "size": {
+            ".data": 4, 
+            ".bss": 0, 
+            ".text": 237
+        }
+    }, 
+    {
+        "module": "rtos/rtx", 
+        "size": {
+            ".data": 20, 
+            ".bss": 5094, 
+            ".text": 9160
+        }
+    }, 
+    {
+        "summary": {
+            "total_flash": 55497, 
+            "static_ram": 6892, 
+            "stack": 3072, 
+            "heap": 6160, 
+            "total_ram": 16124
+        }
+    }
+]
