@@ -37,14 +37,15 @@ static int8_t rx_callback(sn_coap_hdr_s *a, sn_nsdl_addr_s *b, void *c)
 }
 
 
-static bool modem(void){
+static bool softRadio(void){
+
 	bool status = false;
 	bool usingSoftRadio = true;
 
 	Nbiot *pModem = NULL;
 	if( !(pModem = new Nbiot()) )
 	{
-		printf ("[blinky->modem]  Out of Memory !!! \r\n");
+		printf ("[blinky->softRadio]  Out of Memory !!! \r\n");
 	}
 	else
 	{
@@ -57,7 +58,7 @@ static bool modem(void){
 				char reply[128];
 				uint32_t replySize;
 
-				replySize = (uint32_t)pModem->receive ( reply, 128 );
+				replySize = (uint32_t)pModem->receive ( reply, (uint32_t)128 );
 				if (replySize > 0)
 				{
 					printf ("\n ---> RX (%d bytes): \"%.*s\" \r\n\n", (int)replySize, (int)replySize, reply);
@@ -65,12 +66,12 @@ static bool modem(void){
 			}
 			else
 			{
-				printf ("[blinky->modem]  Failed to send datagram !!!\r\n");
+				printf ("[blinky->softRadio]  Failed to send datagram !!!\r\n");
 			}
 		}
 		else
 		{
-			printf ("[blinky->modem]  Failed to connect to the network !!! \r\n");
+			printf ("[blinky->softRadio]  Failed to connect to the network !!! \r\n");
 		}
 	}
 	delete (pModem);
@@ -78,7 +79,7 @@ static bool modem(void){
 }
 
 
-static bool msgCoAP(
+static bool coapMsgBuild(
 		uint8_t              msgPayload,
 		uint16_t             msgPayloadSize,
 		sn_coap_msg_type_e   msgType,
@@ -107,11 +108,13 @@ static bool msgCoAP(
 		memset(hdr.payload_ptr, msgPayload, 8);
 		hdr.payload_len = msgPayloadSize;
 		hdr.msg_type = msgType;
-		hdr.msg_code = COAP_MSG_CODE_REQUEST_POST;
+		hdr.msg_code = msgCode;
+
 		//Here are most often used Options
 		char *myToken = TOKEN;
 		hdr.token_ptr = (uint8_t*)myToken;
 		hdr.token_len = strlen(myToken);
+
 		char *destination = DESTINATION;
 		hdr.uri_path_len = (uint16_t)strlen(destination);
 		hdr.uri_path_ptr = (uint8_t*)destination;
@@ -141,10 +144,17 @@ static bool msgCoAP(
 	return status;
 }
 
-static void msgTest(void)
+static bool coapMsg(void)
 {
-	msgCoAP(++readingData, (uint16_t)sizeof(readingData), COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST);
-	modem();
+	bool status = false;
+	if(coapMsgBuild((uint8_t) ++ readingData,(uint16_t)sizeof(readingData),COAP_MSG_TYPE_CONFIRMABLE/*CoapMessageType*/,COAP_MSG_CODE_REQUEST_POST/*CoapMessageCode*/))
+	{
+		if(softRadio())
+		{
+			status = true;
+		}
+	}
+	return status;
 }
 
 int main(void){
@@ -152,8 +162,10 @@ int x = 0;
     while (true)
     {
     	printf("*** %d HERE\r\n", x);
-    	msgTest();
+
+    	coapMsg();
     	wait_ms(10000);
+
     	printf("*** %d AND HERE\r\n", x);
     	x++;
     }

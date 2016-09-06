@@ -15,7 +15,11 @@ static const char hexTable[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9
 
 // Convert a hex string of a given length into a sequence of bytes, returning the
 // number of bytes written.
-uint32_t hexStringToBytes (const char * pInBuf, uint32_t lenInBuf, char * pOutBuf, uint32_t lenOutBuf)
+uint32_t hexStringToBytes (
+		const char * pInBuf,
+		uint32_t lenInBuf,
+		char * pOutBuf,
+		uint32_t lenOutBuf)
 {
     uint32_t x;
     uint32_t y = 0;

@@ -10,10 +10,10 @@
 // ----------------------------------------------------------------
 
 // 	Maximum length of a string to be sent with the send() function
-#define MAX_LEN_SEND_STRING 256
+#define MAX_LEN_SEND_STRING 128
 
 // 	The default interrupt buffer for received data
-#define DEFAULT_RX_INT_STORAGE 256//128//64
+#define DEFAULT_RX_INT_STORAGE 128
 
 // 	Default timeout when connecting to the network
 #define DEFAULT_CONNECT_TIMEOUT_SECONDS 5

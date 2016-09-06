@@ -64,14 +64,14 @@ bool SerialPort::transmitBuffer(const char *pBuf, uint32_t lenBuf)
 uint32_t SerialPort::receiveBuffer (char *pBuf, uint32_t lenBuf)
 {
 	unsigned long result = 0;
-    if(pgUart->readable())
+    //if(pgUart->readable())
+    //{
+    result = pgUart->scanf("%s",pBuf);
+    if (!result)
     {
-    	result = pgUart->scanf("%s",pBuf);
-        if (!result)
-        {
-            printf ("[serial->receiveBuffer] Receive failed !!!.\r\n");
-        }
+    	printf ("[serial->receiveBuffer] Receive failed !!!.\r\n");
     }
+    //}
     return (uint32_t) result;
 }
 
@@ -80,11 +80,11 @@ uint32_t SerialPort::receiveBuffer (char *pBuf, uint32_t lenBuf)
 int32_t SerialPort::receiveChar()
 {
 	int32_t returnChar = -1;
-	if( pgUart->readable() )
-    {
-    	returnChar = (int32_t) pgUart->getc();
-    	//printf("%c", returnChar);
-    }
+	//if( pgUart->readable() )
+    //{
+    returnChar = (int32_t) pgUart->getc();
+    printf("%c", returnChar);
+    //}
     return (int32_t)returnChar;
 }
 

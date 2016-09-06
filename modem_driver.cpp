@@ -310,7 +310,7 @@ uint32_t Nbiot::receive (char * pMsg, uint32_t msgSize, time_t timeoutSeconds)
                 pHexEnd = strstr (pHexStart, AT_TERMINATOR);
                 if ((pHexEnd != NULL) && (pMsg != NULL))
                 {
-                    hexStringToBytes (pHexStart, pHexEnd - pHexStart, pMsg, msgSize);
+                    hexStringToBytes (pHexStart, pHexEnd - pHexStart, pMsg, bytesReceived/*(uint32_t)msgSize*/);
                 }
             }
             response = waitResponse("+MGR:OK\r\n");
