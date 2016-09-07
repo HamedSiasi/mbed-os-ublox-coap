@@ -1,5 +1,12 @@
 #include "mbed.h"
+
+#include "ns_types.h"
+#include "sn_nsdl.h"
+#include "sn_coap_header.h"
 #include "sn_coap_protocol.h"
+#include "sn_nsdl_lib.h"
+
+
 #include "ublox/modem_driver.h"
 #include <stdlib.h>
 #include <string.h>
@@ -171,5 +178,3 @@ int x = 0;
     }
     return -1;
 }
-
-
