@@ -17,10 +17,15 @@ To fetch and build the code in this repository you need first to install the [mb
 (2) Enter to the repo directory (`cd mbed-os-ublox-coap`)
 
 (3) `add` necessary libraries:
+
 `mbed add https://github.com/ARMmbed/mbed-client-c`
+
 `mbed add https://github.com/ARMmbed/mbed-trace`
+
 `mbed add https://github.com/ARMmbed/nanostack-libservice`
+
 don't clone directly the libraries use `mbed add`.
+
 
 (4) Set the target (`mbed target SARA_NBIOT_EVK`)
 (5) Set the toolchain (`mbed toolchain GCC_ARM`)
