@@ -1,4 +1,4 @@
-# mbed-os: u-blox Test Application for CoAP Protocol
+# Test Application for CoAP Protocol
 
 This repo contains a mini application that pulls together:
 
@@ -36,7 +36,7 @@ don't clone directly the libraries use `mbed add`.
 
 (6) `mbed update`
 
-This will fetch the latest code from https://github.com/ARMmbed/mbed-ublox
+This will fetch the latest code from `https://github.com/ARMmbed/mbed-ublox`
 
 (7) Once this is done, build the code with:
 
