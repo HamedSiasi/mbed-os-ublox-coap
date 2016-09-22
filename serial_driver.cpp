@@ -46,15 +46,15 @@ bool SerialPort::connect(const char * pPortName)
 // in the case of success.
 bool SerialPort::transmitBuffer(const char *pBuf, uint32_t lenBuf)
 {
-	unsigned long result = 0;
-    if(pgUart->writeable())
+    unsigned long result = 0;
+    //if(pgUart->writeable())
+    //{
+    result = pgUart->printf(pBuf);
+    if (!result)
     {
-    	result = pgUart->printf(pBuf);
-        if (!result)
-        {
-            printf ("[serial->transmitBuffer]  Transmit failed !!! \r\n");
-        }
+        printf ("[serial->transmitBuffer]  Transmit failed !!! \r\n");
     }
+    //}
     return (bool) result;
 }
 
