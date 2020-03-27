@@ -1,0 +1,2189 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "External (Client) API's",
+    "description": "<h1>Customer REST APIs used to connect to SSAPI Services Platform.</h1>",
+    "version": "0.1"
+  },
+  "servers": [
+    {
+      "url": "https://ssapi.services.u-blox.com/v1"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "authId": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "<div style=\"font-size:1.2em;\"><b>Hexadecimal Encoded Authorization Header</b>. <p style=\"font-size:1.0em;\">The Authorization Header (AuthToken) is created using the Authenticate API call detailed in this document.  <p style=\"font-size:1.0em;\"><b>Note:</b> The client has 1 hour to use each newly generated Authorization Header (AuthToken) when testing the APIs detailed in this document.</div>"
+      }
+    }
+  },
+  "paths": {
+    "/Authenticate": {
+      "post": {
+        "tags": [
+          "Authentication APIs"
+        ],
+        "description": "Authenticates an APIKey and matching secret and returns an AuthToken and RefreshToken",
+        "summary": "Get Auth and Refesh Tokens.",
+        "requestBody": {
+          "description": "<div style=\"font-size:1.2em;\"><b>Authenticate</b> - Request body description.<p>Parameters used in the API call: <ol><li><b>APIKey </b>[Mandatory]<b>:-</b> <br>The APIKey created and provided to the client by their u-blox FAE support.  This is one of the two values (including the APISecret) required to create the Authorization (AuthToken) and Refresh (RefreshToken) headers. It must be current and valid for the client. </li><br><li><b>APISecret </b>[Mandatory]<b>:-</b> <br>The APISecret linked to and created at the same time as the APIKey. The APISecret will also be provided to the client by their u-blox FAE support - it must be current and valid for the APIKey. </li></ol><p>curl example: <div style=\"color:blue\">curl -X POST \"https://ssapi.services.u-blox.com/v1/Authenticate\" -H \"accept: application/json\" -H \"Content-Type: application/json\" -d \"{ \\\"APIKey\\\": \\\"[APIKey Parameter]\\\", \\\"APISecret\\\": \\\"[APISecret Parameter]\\\"}\"</div><p> See JSON schema examples below:</div>",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "APIKey": {
+                    "type": "string",
+                    "example": "0d636af8-d001-49ba-86d3-80f21272c14a",
+                    "description": "The API Key is created by and forwarded to the client by the u-blox FAE support contact."
+                  },
+                  "APISecret": {
+                    "type": "string",
+                    "example": "nqnazbOMuKAalu9KZwHKyN7tnJua96ki",
+                    "description": "The API Secret linked to and created at the same time as the API Key. This is also forwarded from the u-blox FAE support contact."
+                  }
+                },
+                "required": [
+                  "APIKey",
+                  "APISecret"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Success.</b> <p>To get a successful (200) response the following criteria must be achieved: <ol><li>The URL Header credentials are valid.</li><li>The APIKey and APISecret are valid and assigned to the correct client.</li></ol> <p>When the call to the server is successful the following information is returned: <ol><li><b>AuthToken:-</b> A time restricted Authorization header that must be used when calling the Provisioning, Service and Information APIs. The client has a maximum of 1 hour to use each AuthToken that has been created.</li><br><li><b>RefreshToken:-</b> A 3 day time restricted token that can be used to recreate a new 1 hour time restricted AuthToken. The RefreshToken can be used with the RefreshAuthToken API to create new AuthTokens for up to 3 days.</li></ol><p>See JSON schema example below:</div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "AuthToken": {
+                      "type": "string",
+                      "example": "eyJraWQiOiJwZFc0elY4dGlEaDhjUWREUTIrOXQ5SmhMZ2w1bGpNTW5Lcm1aVTRxV1M0PSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJmNTEwZTAxZS1lOWNlLTRiNGYtOTI2Mi1lOWE3NGJiNjhhNGUiLCJhdWQiOiI1ZTZydmMwb2Fhc2FwYWs1NHZjNTFxdmRkMSIsImV2ZW50X2lkIjoiYzViOGEzMWEtYjc1My00NjEwLTg3MWUtNWRkOGFiZmZlMjk1IiwidG9rZW5fdXNlIjoiaWQiLCJhdXRoX3RpbWUiOjE1NzY0ODg4MTgsImlzcyI6Imh0dHBzOlwvXC9jb2duaXRvLWlkcC5ldS13ZXN0LTEuYW1hem9uYXdzLmNvbVwvZXUtd2VzdC0xX1pvNmExYzI5SSIsImNvZ25pdG86dXNlcm5hbWUiOiI3NTExMmQ0OC1iMjFkLTRmYzItYmJlMS01MjBmMWYxY2IxYWY0djdqS3MzcFlPNlp4S1o3NTh0MUhMNnEzQ3FQZkV2OWx5THRCZzUzIiwiZXhwIjoxNTc2NDkyNDE4LCJpYXQiOjE1NzY0ODg4MTh9.KEqQlBGji-x6q48N0QC92MDyYaqvoE1yjlDZIT-Wm83JTd_N4gg04Fft1LhBf_n5kcaG8ozNOcoQqnvGSgRc3WdiRRt10VLjWelLxTCZv-KfdE_yytxMQyz8okW934hyDCHEICCPFcVFuguNKgLvROaRbrdyXvjxRp19wJMoFIxTyq_HVKNsXE4pMjRzOe8aUVPknv-ahwWptOGmkLItn6kPvKze5dRjrZ_TCX1JA9ctWutQsA3xVudkAigX5abPU67ERCcC18MWcb2suJdKAJ_LEbNu9oaVxhK4BKyAsGXgzfJDcmzmvah-HpfRZILKOk2aFI3pJuT5bIvRk714DA",
+                      "description": "The Authorization token required using the GetDeviceInfo, GetE2EDecryptionParameters and GetPSK API calls"
+                    },
+                    "RefreshToken": {
+                      "type": "string",
+                      "example": "eyJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiUlNBLU9BRVAifQ.BET2RibujxYPTb8J9MmsvK567rSyNKinEWKUMW5DwXDmN-_iK78UVDeNZcsBMHat7Q0QDPRV_JJwtW9WUb9QIT1PboCi8G7Umq-UzMY0VKgEgjzvC2dz0USDljE7rI9PsizL35g52WOYdyjuOz-5ywmtzJW_Gm4w6pJ7tZFV3C_fzD107QVWIMZJkEcdz_qXMh_xrtHtIjPtgtVwydfTugiBKUIdKp1MDXayEXHObCRnQ-wT_PYPf5kpyK2HdrkkafZ-bLcT1Ot1xX5Won3oReYvaaRGjODbzpSCmTRK19-vtUHdmbijOtlwbXIib2ywy5I0NFI_oz1vB6m14LUuwQ.5jr8P9WBumUqQ0py.n-DjibjN8GgrMlzushDQNCCM1ycqD-QXCBoGCbfdKTGasREloXu8-GOgdABlkHdkUIWbls8Yy081p2ralIZJ5ARrhpaLspuxYf3uCUO2sHGJoSXpyNUuI74je2qGu6SVMwmJsa3Mw_aduAjIldcfYk_BqCVrjAO4Hr33pkJJsVVkr9vgvSRA-Xd59QB_XcNU0Z871JeMT2tLkJlZKUJ7xQhAK5Uu1zozoUJpSsj5wmGo1wrMGNUKQ0Hbg0Y8j9yFJNeGbu8LRZeCUAT3T9KbvegihzpjBdlAg7qNBE8DaiwluYEhNIM9SCR5U8S9qO9X6CxJy4D408CWkid4iiU3rmJ7JO5fJiQQJ1YJob0W9KOimYZ8k9llFfYY8SpFq3N7q0qR_vIS0PgwE-rofuHafWUrksE-GXfa_L9HNAzrYdNA4sXwEUCQsv0cvcm-UklL02HMSLXv_A0y4O-UuSORe9ktpGog2pNm8Z-w6haDtszTu-7PMG18Rx-3B2luoX6rX7NadbFiEOpYl7jq5e1yW2gqntt_p66TWLmaB2_Hi47J2dkTszAhHc6L-kWqQ-MmOB2RuHHyvj0-NH-kiRIDH8NwfJYS36Z1YS1bwtxixkLeZ4szpl0QDB18MZEVJCr-98r0-4jXcIb05uL-piJtJr3hozjxGphMrV1ZcQe28NppkHUCPP99g8M7Rr_2e4v-TZWEN2twcKenciF6j6Vzgb-jD9xTNygIj7xQuw6GIw1RUIt9WpoKwL8sXZwpzQ-LXWvP6uw4lYfovGeUcx6HsUX3HKoSpMQnbmrIUmWmM4TyKLnrvSnVzwtQfzu6IIEC_bvG_O9Ke7a87rq8n9i9XkrpjmkXTcmw5Pp-wRHVlNriYvE_G_PhB5f2aBs9G-zuA5ybKIOExE-KRCCouji53lBJrgtO_Q0tfyhqjXW4zYSF-vStFgLAuEbYDjTiY0RB23OpPn2AVBVuQtFvxjKoBqgzTiPXhrsu_1QQ6joLEw5pJXJ07vMI1yWMj8Qro6MUwfdwappSjsEoopE9XG38w41yTpOj29spfjNWhVMG6e7Ohy5OvQ7_LK6_RgbbOHSajTXAv_dGhq2NN6uotnkTDYmoWxVVK5RoKBFlwBnyyB6H5s6rRcPLJIyXlySTOlL66rOIZbHz92eYmCC334dMiDEMuZcAjwgDsMOX8nfFIBFVNgdmlQYk1fxrU_JG5uvm1_dhmI3bKrmOMB9OdwGHoEyNd8fYcFVacB9hhhY_ejLe_2rkNhPbu5ONGeq6MrFGaa-we_BBjA25X9Zlr8Y8DDnjYQsOYRs3acA7uuy-gJ6AdQ7CYuZtLamN4JlXMhQP6VzQYVULYDooMSwOI4kqhotGLW0YM4XmC9x8nc3A-dRZW5fNA6A3WeqEJuwZ8Vpiwh8.1rMwObTlw4-WhgQA6W0Ixg",
+                      "description": "A Refresh Token that is valid for 3 days and can be used to retrieve a new AuthToken.  The RefreshToken can be used with the RefreshAuthToken API to create new AuthTokens for up to 3 days."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Bad Request.</b></div>"
+          },
+          "401": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Not Authorized.</b></div>"
+          },
+          "404": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Not Found.</b></div>"
+          }
+        }
+      }
+    },
+    "/RefreshAuthToken": {
+      "post": {
+        "tags": [
+          "Authentication APIs"
+        ],
+        "summary": "Get a new Auth Token.",
+        "description": "Allows the creation of a new AuthToken.  The RefreshToken can be used for 3 days",
+        "requestBody": {
+          "description": "<div style=\"font-size:1.2em;\"><b>RefreshAuthToken</b> - Request body description.<p>Parameters used in the API call: <ol><li><b>APIKey </b>[Mandatory]<b>:-</b> <br>The APIKey created and provided to the client by their u-blox FAE support.  It must be current and valid for the client. </li><br><li><b>RefreshToken </b>[Mandatory]<b>:-</b> <br>The Token used to create a new Authorization header. The RefreshToken can only be used to create a new AuthToken if the RefreshToken is not more than 3 days old. </li></ol><p>curl example: <div style=\"color:blue\">curl -X POST \"https://ssapi.services.u-blox.com/v1/RefreshAuthToken\" -H \"accept: application/json\" -H \"Content-Type: application/json\" -d \"{ \\\"APIKey\\\": \\\"[APIKey Parameter]\\\", \\\"RefreshToken\\\": \\\"[RefreshToken Parameter]\\\"}\"</div><p> See JSON schema examples below:</div>",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "APIKey": {
+                    "type": "string",
+                    "example": "0d636af8-d001-49ba-86d3-80f21272c14a",
+                    "description": "The API Key is created by and forwarded to the client by the u-blox FAE support contact."
+                  },
+                  "RefreshToken": {
+                    "type": "string",
+                    "example": "eyJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiUlNBLU9BRVAifQ.BET2RibujxYPTb8J9MmsvK567rSyNKinEWKUMW5DwXDmN-_iK78UVDeNZcsBMHat7Q0QDPRV_JJwtW9WUb9QIT1PboCi8G7Umq-UzMY0VKgEgjzvC2dz0USDljE7rI9PsizL35g52WOYdyjuOz-5ywmtzJW_Gm4w6pJ7tZFV3C_fzD107QVWIMZJkEcdz_qXMh_xrtHtIjPtgtVwydfTugiBKUIdKp1MDXayEXHObCRnQ-wT_PYPf5kpyK2HdrkkafZ-bLcT1Ot1xX5Won3oReYvaaRGjODbzpSCmTRK19-vtUHdmbijOtlwbXIib2ywy5I0NFI_oz1vB6m14LUuwQ.5jr8P9WBumUqQ0py.n-DjibjN8GgrMlzushDQNCCM1ycqD-QXCBoGCbfdKTGasREloXu8-GOgdABlkHdkUIWbls8Yy081p2ralIZJ5ARrhpaLspuxYf3uCUO2sHGJoSXpyNUuI74je2qGu6SVMwmJsa3Mw_aduAjIldcfYk_BqCVrjAO4Hr33pkJJsVVkr9vgvSRA-Xd59QB_XcNU0Z871JeMT2tLkJlZKUJ7xQhAK5Uu1zozoUJpSsj5wmGo1wrMGNUKQ0Hbg0Y8j9yFJNeGbu8LRZeCUAT3T9KbvegihzpjBdlAg7qNBE8DaiwluYEhNIM9SCR5U8S9qO9X6CxJy4D408CWkid4iiU3rmJ7JO5fJiQQJ1YJob0W9KOimYZ8k9llFfYY8SpFq3N7q0qR_vIS0PgwE-rofuHafWUrksE-GXfa_L9HNAzrYdNA4sXwEUCQsv0cvcm-UklL02HMSLXv_A0y4O-UuSORe9ktpGog2pNm8Z-w6haDtszTu-7PMG18Rx-3B2luoX6rX7NadbFiEOpYl7jq5e1yW2gqntt_p66TWLmaB2_Hi47J2dkTszAhHc6L-kWqQ-MmOB2RuHHyvj0-NH-kiRIDH8NwfJYS36Z1YS1bwtxixkLeZ4szpl0QDB18MZEVJCr-98r0-4jXcIb05uL-piJtJr3hozjxGphMrV1ZcQe28NppkHUCPP99g8M7Rr_2e4v-TZWEN2twcKenciF6j6Vzgb-jD9xTNygIj7xQuw6GIw1RUIt9WpoKwL8sXZwpzQ-LXWvP6uw4lYfovGeUcx6HsUX3HKoSpMQnbmrIUmWmM4TyKLnrvSnVzwtQfzu6IIEC_bvG_O9Ke7a87rq8n9i9XkrpjmkXTcmw5Pp-wRHVlNriYvE_G_PhB5f2aBs9G-zuA5ybKIOExE-KRCCouji53lBJrgtO_Q0tfyhqjXW4zYSF-vStFgLAuEbYDjTiY0RB23OpPn2AVBVuQtFvxjKoBqgzTiPXhrsu_1QQ6joLEw5pJXJ07vMI1yWMj8Qro6MUwfdwappSjsEoopE9XG38w41yTpOj29spfjNWhVMG6e7Ohy5OvQ7_LK6_RgbbOHSajTXAv_dGhq2NN6uotnkTDYmoWxVVK5RoKBFlwBnyyB6H5s6rRcPLJIyXlySTOlL66rOIZbHz92eYmCC334dMiDEMuZcAjwgDsMOX8nfFIBFVNgdmlQYk1fxrU_JG5uvm1_dhmI3bKrmOMB9OdwGHoEyNd8fYcFVacB9hhhY_ejLe_2rkNhPbu5ONGeq6MrFGaa-we_BBjA25X9Zlr8Y8DDnjYQsOYRs3acA7uuy-gJ6AdQ7CYuZtLamN4JlXMhQP6VzQYVULYDooMSwOI4kqhotGLW0YM4XmC9x8nc3A-dRZW5fNA6A3WeqEJuwZ8Vpiwh8.1rMwObTlw4-WhgQA6W0Ixg",
+                    "description": "The previosuly created Refresh Token - this must be valid and used within the restricted time limit.  The current time limit is 3 days"
+                  }
+                },
+                "required": [
+                  "RefreshToken"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Success.</b> <p>To get a successful (200) response the following criteria must be achieved: <ol><li>The URL Header credentials are valid.</li><li>The APIKey and RefreshToken are valid and assigned to the correct client and the RefreshToken has not exceeded its time limit.</li></ol> <p>When the call to the server is successful the following information is returned: <ol><li><b>AuthToken:-</b> A time restricted Authorization header that must be used when calling the Provisioning, Service and Information APIs.  The client has a maximum of 1 hour to use each AuthToken that has been created.</li></ol><p>See JSON schema example below:</div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "AuthToken": {
+                      "type": "string",
+                      "example": "eyJraWQiOiJwZFc0elY4dGlEaDhjUWREUTIrOXQ5SmhMZ2w1bGpNTW5Lcm1aVTRxV1M0PSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJmNTEwZTAxZS1lOWNlLTRiNGYtOTI2Mi1lOWE3NGJiNjhhNGUiLCJhdWQiOiI1ZTZydmMwb2Fhc2FwYWs1NHZjNTFxdmRkMSIsImV2ZW50X2lkIjoiYzViOGEzMWEtYjc1My00NjEwLTg3MWUtNWRkOGFiZmZlMjk1IiwidG9rZW5fdXNlIjoiaWQiLCJhdXRoX3RpbWUiOjE1NzY0ODg4MTgsImlzcyI6Imh0dHBzOlwvXC9jb2duaXRvLWlkcC5ldS13ZXN0LTEuYW1hem9uYXdzLmNvbVwvZXUtd2VzdC0xX1pvNmExYzI5SSIsImNvZ25pdG86dXNlcm5hbWUiOiI3NTExMmQ0OC1iMjFkLTRmYzItYmJlMS01MjBmMWYxY2IxYWY0djdqS3MzcFlPNlp4S1o3NTh0MUhMNnEzQ3FQZkV2OWx5THRCZzUzIiwiZXhwIjoxNTc2NDkyNjUzLCJpYXQiOjE1NzY0ODkwNTN9.JL69Bk9B1VYI8ZIKbZBYFJM7LWVEheyHSOc_LA3o3ZNQieYjOOJmTc56qOsNNPX03j2G91OXnaZqJDAhkuz759WHFgTZ4PQt45VhnFSJRf-cxXEGKIYY9vS5Pyi9USpOuKt6zRuD1yoZTsRScQaKV5jV0kDmu1f4nwmM38XFKY7NL37-AntoYk4pRLeuK3zQt3AHHFNeBXBEckD1HakdEXWubRXj7x9dWZ1Q00ttw6Ca9FN_UHcRg265QOhhGzEYd7q-f8VTDDgHQrvNL43UJ9-Xl_WLG-26q9IxNwVRW0N_veIu4w9TLYLHczWfBLEH86ZqA3K7E2KiANoxVXj0vA",
+                      "description": "A AuthToken created via the Refresh Token"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Bad Request.</b></div>"
+          },
+          "401": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Not Authorized.</b></div>"
+          },
+          "404": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Not Found.</b></div>"
+          }
+        }
+      }
+    },
+    "/SetProvisioningOnBootstrap": {
+      "post": {
+        "tags": [
+          "Provisioning APIs"
+        ],
+        "summary": "Set or update authorizations and network parameters on new devices",
+        "description": "Set or update feature authorizations (Local Encryption, C2C, C2CKeyPairing, ZTPV1), and network parameters (Security Heartbeat) on new devices (i.e.: they have not bootstrapped).  Provisioning will happen when the device bootstraps.<p>Enables or disables feature authorization and network parameters on the list of devices that belong to provided DeviceProfileUID in the request.<p><b>Note:</b> Please use the <b>Authorize</b> button at the top of this page to add the time restricted Hexadecimal Authorization Header generated using the Authenticate API also detailed in this document.",
+        "security": [
+          {
+            "authId": []
+          }
+        ],
+        "requestBody": {
+          "description": "<div style=\"font-size:1.2em;\"><b>SetProvisioningOnBootstrap</b> - Request body description.<p>Parameters used in the API call: <ol><li><b>DeviceProfileUID</b>[Mandatory]<b>:-</b> <br>DeviceProfileUID against which security features will be set.<br></li><br><li><b>Provisioning </b> [Mandatory]<b>:-</b> <br> The desired feature authorization properties (enabled/disabled) to be provisioned on DeviceProfileUID. </li></ul></li><br><b>Note:</b> Only Local Encryption, C2C, C2CKeyPairing, and ZTPV1 security services can be updated using this API. In addition, network parameters (Security Heartbeat) can also be set using this API.</li></ol> <p>curl example: <div style=\"color:blue\">curl -X POST \"https://ssapi.services.u-blox.com/v1/SetProvisioningOnBootstrap\" -H \"accept: application/json\" -H \"Authorization: [Authorization Parameter]\" -H \"Content-Type: application/json\" -d \"{ \\\"DeviceProfileUID\\\": \\\"[DeviceProfileUID Parameter]\\\" \\\"Provisioning\\\": \\\"[Provisioning Parameter]\\\"}\"</div><p> See JSON schema examples below:</div>",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "DeviceProfileUID": {
+                    "type": "string",
+                    "example": "AyvylmHVdUiHQzUaCjOmC",
+                    "pattern": "^(.*)$",
+                    "description": "The DeviceProfileUID on which provisioning should be set."
+                  },
+                  "Provisioning": {
+                    "type": "object",
+                    "properties": {
+                      "Authorizations": {
+                        "description": "The list of security services that must be updated on the devices.",
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "Name": {
+                              "type": "string",
+                              "description": "Name of the feature authorization",
+                              "enum": [
+                                "LocalEncryption",
+                                "C2C",
+                                "C2CKeyPairing",
+                                "ZTPV1"
+                              ],
+                              "pattern": "^(.*)$"
+                            },
+                            "State": {
+                              "type": "string",
+                              "description": "State of the feature authorization. Can be:<ol><li>ENABLED</li><li>DISABLED</li></ol>",
+                              "example": "ENABLED"
+                            }
+                          },
+                          "required": [
+                            "Name",
+                            "State"
+                          ]
+                        }
+                      },
+                      "NetworkParameters": {
+                        "type": "object",
+                        "description": "Network parameters to set",
+                        "required": [
+                          "SecurityHeartbeatInSec"
+                        ],
+                        "properties": {
+                          "SecurityHeartbeatInSec": {
+                            "type": "integer",
+                            "example": 86400
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "DeviceProfileUID",
+                  "Provisioning"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Success.</b> <p>To get a successful (200) response the following criteria must be achieved: <ol><li>The URL Header credentials are valid and authorized.</li><li>The DeviceProfileUID is valid and assigned to the correct client and Provisioning is also valid.</li></ol> <p>When the call to the server is successful the following information is returned: <ol><li>A <b>200 OK </b>Success Status. An empty JSON response is returned. </li></ol></div>"
+          },
+          "400": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Bad Request.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "Message": "Bad Request"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Not Authorized.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "Message": "Not Authorized: Token Expired"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Not Found.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "Message": "Not Found"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/GetProvisioningOnBootstrap": {
+      "post": {
+        "tags": [
+          "Provisioning APIs"
+        ],
+        "summary": "Gets any feature authorizations and network parameters that were set",
+        "description": "Gets feature authorization and network parameters that were set on new devices (i.e.: they have not bootstrapped).<p><b>Note:</b> Please use the <b>Authorize</b> button at the top of this page to add the time restricted Hexadecimal Authorization Header generated using the Authenticate API also detailed in this document.",
+        "security": [
+          {
+            "authId": []
+          }
+        ],
+        "requestBody": {
+          "description": "<div style=\"font-size:1.2em;\"><b>GetProvisioningOnBootstrap</b> - Request body description.<p>Parameters used in the API call: <ol><li><b>DeviceProfileUID</b>[Mandatory]<b>:-</b> <br>DeviceProfileUID against which security features were set.<br></li></li></ol> <p>curl example: <div style=\"color:blue\">curl -X POST \"https://ssapi.services.u-blox.com/v1/SetProvisioningOnBootstrap\" -H \"accept: application/json\" -H \"Authorization: [Authorization Parameter]\" -H \"Content-Type: application/json\" -d \"{ \\\"DeviceProfileUID\\\": \\\"[DeviceProfileUID Parameter]\\\"}\"</div><p> See JSON schema examples below:</div>",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "DeviceProfileUID": {
+                    "type": "string",
+                    "example": "AyvylmHVdUiHQzUaCjOmC",
+                    "pattern": "^(.*)$",
+                    "description": "The DeviceProfileUID on which provisioning was set."
+                  }
+                },
+                "required": [
+                  "DeviceProfileUID"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Success.</b> <p>To get a successful (200) response the following criteria must be achieved: <ol><li>The URL Header credentials are valid and authorized.</li><li>The DeviceProfileUID is valid and assigned to the correct client.</li></ol> <p>When the call to the server is successful the following information is returned: <ol><li><b>DeviceProfileUID:-</b>Same as was sent in request.</li><li><b>DesiredProperties:-</b>Security services, including network parameters that were set.</li></ol><p>See JSON schema example below:</div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "DeviceProfileUID": {
+                      "type": "string"
+                    },
+                    "DesiredProperties": {
+                      "type": "object",
+                      "properties": {
+                        "Authorizations": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "Name": {
+                                "type": "string"
+                              },
+                              "State": {
+                                "type": "string"
+                              },
+                              "Modified": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        },
+                        "NetworkParameters": {
+                          "type": "object",
+                          "properties": {
+                            "SecurityHeartbeatInSec": {
+                              "type": "integer"
+                            },
+                            "Modifed": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "DeviceProfileUID": "AyvylmHVdUiHQzUaCjOmC",
+                  "DesiredProperties": {
+                    "Authorizations": [
+                      {
+                        "Name": "LocalEncryption",
+                        "State": "ENABLED",
+                        "Modified": "2020-02-21T05:44:27.159+00:00"
+                      }
+                    ],
+                    "NetworkParameters": {
+                      "SecurityHeartbeatInSec": 85000,
+                      "Modified": "2020-02-21T05:44:27.159+00:00"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Bad Request.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "Message": "Bad Request"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Not Authorized.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "Message": "Not Authorized: Token Expired"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Not Found.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "Message": "Not Found"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/DeleteProvisioningOnBootstrap": {
+      "post": {
+        "tags": [
+          "Provisioning APIs"
+        ],
+        "summary": "Deletes any feature authorization and network parameters that were set",
+        "description": "Deletes feature authorizations and network parameters that were set to be applied on new devices (i.e.: they have not bootstrapped), as if they were never set.<br /><br />All devices that have already bootstrapped will <b>not</b> be affected by this change.<p><b>Note:</b> Please use the <b>Authorize</b> button at the top of this page to add the time restricted Hexadecimal Authorization Header generated using the Authenticate API also detailed in this document.",
+        "security": [
+          {
+            "authId": []
+          }
+        ],
+        "requestBody": {
+          "description": "<div style=\"font-size:1.2em;\"><b>DeleteProvisioningOnBootstrap</b> - Request body description.<p>Parameters used in the API call: <ol><li><b>DeviceProfileUID</b>[Mandatory]<b>:-</b> <br>DeviceProfileUID against which security features will be deleted.<br></li></li></ol> <p>curl example: <div style=\"color:blue\">curl -X POST \"https://ssapi.services.u-blox.com/v1/SetProvisioningOnBootstrap\" -H \"accept: application/json\" -H \"Authorization: [Authorization Parameter]\" -H \"Content-Type: application/json\" -d \"{ \\\"DeviceProfileUID\\\": \\\"[DeviceProfileUID Parameter]\\\"}\"</div><p> See JSON schema examples below:</div>",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "DeviceProfileUID": {
+                    "type": "string",
+                    "example": "AyvylmHVdUiHQzUaCjOmC",
+                    "pattern": "^(.*)$",
+                    "description": "The DeviceProfileUID on which set provisioning will be deleted."
+                  }
+                },
+                "required": [
+                  "DeviceProfileUID"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Success.</b> <p>To get a successful (200) response the following criteria must be achieved: <ol><li>The URL Header credentials are valid and authorized.</li><li>The DeviceProfileUID is valid and assigned to the correct client.</li></ol> <p>When the call to the server is successful the following information is returned: <ol><li><b>200 OK</b> status</div>"
+          },
+          "400": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Bad Request.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "Message": "Bad Request"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Not Authorized.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "Message": "Not Authorized: Token Expired"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Not Found.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "Message": "Not Found"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/SetProvisioningOnExisting": {
+      "post": {
+        "tags": [
+          "Provisioning APIs"
+        ],
+        "summary": "Set feature authorization and network parameters on existing devices",
+        "description": "Set feature authorizations (LocalEncryption, C2C, C2CKeyPairing, ZTPV1) and network parameters (Security Heartbeat) on existing devices (i.e.: they have already bootstrapped).  Provisioning will happen on the devices' next Whatsup call.<p>Sets feature authorization and network parameters on the list of devices provided in the request.<p><b>Note:</b> Please use the <b>Authorize</b> button at the top of this page to add the time restricted Hexadecimal Authorization Header generated using the Authenticate API also detailed in this document.",
+        "security": [
+          {
+            "authId": []
+          }
+        ],
+        "requestBody": {
+          "description": "<div style=\"font-size:1.2em;\"><b>SetProvisioningOnExisting</b> - Request body description.<p>Parameters used in the API call: <ol><li><b>(List of) ROTPublicUIDs </b>[Mandatory]<b>:-</b> <br>The list of <i>(1 to N)</i> ROTPublicUIDs that need to be updated.<br></li><br><li><b>Provisioning </b> [Mandatory]<b>:-</b> <br> The desired feature authorization properties (enabled/disabled) to be provisioned on the ROTPublicUID list (it includes network parameters). </li></ul></li><br><b>Note:</b> Only LocalEncryption, C2C, C2CKeyPairing, ZTPV1 security services can be updated using this API.</li></ol> <p>curl example: <div style=\"color:blue\">curl -X POST \"https://ssapi.services.u-blox.com/v1/SetProvisioningOnExisting\" -H \"accept: application/json\" -H \"Authorization: [Authorization Parameter]\" -H \"Content-Type: application/json\" -d \"{ \\\"ROTPublicUIDs\\\": \\\"[ROTPublicUIDs Parameter]\\\" \\\"Provisioning\\\": \\\"[Provisioning Parameter]\\\"}\"</div><p> See JSON schema examples below:</div>",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ROTPublicUIDs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "example": "0002000089282256",
+                      "pattern": "^(.*)$",
+                      "description": "The list of <i>(1 to N)</i> ROTPublicUIDs that need to be updated."
+                    }
+                  },
+                  "Provisioning": {
+                    "type": "object",
+                    "properties": {
+                      "Authorizations": {
+                        "type": "array",
+                        "description": "The list of security services that must be updated on the devices.",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "Name",
+                            "State"
+                          ],
+                          "properties": {
+                            "Name": {
+                              "type": "string",
+                              "description": "The name of security service to be updated.",
+                              "enum": [
+                                "LocalEncryption",
+                                "C2C",
+                                "C2CKeyPairing",
+                                "ZTPV1"
+                              ],
+                              "example": "LocalEncryption"
+                            },
+                            "State": {
+                              "type": "string",
+                              "description": "The state - either ENABLED or DISABLED",
+                              "example": "ENABLED"
+                            }
+                          }
+                        }
+                      },
+                      "NetworkParameters": {
+                        "type": "object",
+                        "required": [
+                          "SecurityHeartbeatInSec"
+                        ],
+                        "properties": {
+                          "SecurityHeartbeatInSec": {
+                            "type": "string",
+                            "example": 86400
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "ROTPublicUIDs",
+                  "Provisioning"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Success.</b> <p>To get a successful (200) response the following criteria must be achieved: <ol><li>The URL Header credentials are valid and authorized.</li><li>The ROTPublicUIDs are valid and assigned to the correct client and when set the Authorizations are also valid.</li></ol> <p>When the call to the server is successful the following information is returned: <ol><li>A <b>200 OK </b>Success Status. An empty JSON response is returned. </li></ol></div>"
+          },
+          "400": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Bad Request.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "Message": "Bad Request"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Not Authorized.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errorMessage": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "Message": "Not Authorized: Token Expired"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Not Found.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "Message": "Not Found."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/GetProvisioningOnExisting": {
+      "post": {
+        "tags": [
+          "Provisioning APIs"
+        ],
+        "summary": "Get feature authorizations and network parameters that are to be set on existing devices",
+        "description": "Get feature authorizations (LocalEncryption, C2C, C2CKeyPairing, ZTPV1) and network parameters (Security Hearbeat) that are to be set on existing devices (i.e.: they have already bootstrapped).<p><b>Note:</b> Please use the <b>Authorize</b> button at the top of this page to add the time restricted Hexadecimal Authorization Header generated using the Authenticate API also detailed in this document.",
+        "security": [
+          {
+            "authId": []
+          }
+        ],
+        "requestBody": {
+          "description": "<div style=\"font-size:1.2em;\"><b>GetProvisioningOnExisting</b> - Request body description.<p>Parameters used in the API call: <ol><li><b>(List of) ROTPublicUIDs </b>[Mandatory]<b>:-</b> <br>The list of <i>(1 to N)</i> ROTPublicUIDs that need to be updated.<br></li></ol> <p>curl example: <div style=\"color:blue\">curl -X POST \"https://ssapi.services.u-blox.com/v1/SetProvisioningOnExisting\" -H \"accept: application/json\" -H \"Authorization: [Authorization Parameter]\" -H \"Content-Type: application/json\" -d \"{ \\\"ROTPublicUIDs\\\": \\\"[ROTPublicUIDs Parameter]\\\"}\"</div><p> See JSON schema examples below:</div>",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ROTPublicUIDs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "example": "0002000089282256",
+                      "pattern": "^(.*)$",
+                      "description": "The list of <i>(1 to N)</i> ROTPublicUIDs that need to be updated."
+                    }
+                  }
+                },
+                "required": [
+                  "ROTPublicUIDs"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Success.</b> <p>To get a successful (200) response the following criteria must be achieved: <ol><li>The URL Header credentials are valid and authorized.</li><li>The ROTPublicUIDs are valid and assigned to the correct client and when set the Authorizations are also valid.</li></ol><p>When the call to the server is successful the following information is returned: <ol><li><b>ROTPublicUID:-</b>Same as was sent in request.</li><li><b>DesiredProperties:-</b>Security services, including network parameters that were set. <br /><b>Note:</b>When a DesiredProperty is applied on ROTPublicUID, it will not be shown here. </li></ol><p>See JSON schema example below:</div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "properties": {
+                      "ROTPublicUID": {
+                        "type": "string"
+                      },
+                      "DesiredProperties": {
+                        "type": "object",
+                        "properties": {
+                          "Authorizations": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "Name": {
+                                  "type": "string"
+                                },
+                                "State": {
+                                  "type": "string"
+                                },
+                                "Modified": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          },
+                          "NetworkParameters": {
+                            "type": "object",
+                            "properties": {
+                              "SecurityHeartbeatInSec": {
+                                "type": "integer"
+                              },
+                              "Modifed": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "ROTPublicUID": "00030000822800AA",
+                    "DesiredProperties": {
+                      "Authorizations": [
+                        {
+                          "Name": "LocalEncryption",
+                          "State": "ENABLED",
+                          "Modified": "2020-02-21T05:44:27.159+00:00"
+                        }
+                      ],
+                      "NetworkParameters": {
+                        "SecurityHeartbeatInSec": 85000,
+                        "Modified": "2020-02-21T05:44:27.159+00:00"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Bad Request.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "Message": "Bad Request"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Not Authorized.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errorMessage": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "Message": "Not Authorized: Token Expired"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Not Found.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "Message": "Not Found."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/DeleteProvisioningOnExisting": {
+      "post": {
+        "tags": [
+          "Provisioning APIs"
+        ],
+        "summary": "Delete feature authorizations and network parameters that are to be set on existing devices",
+        "description": "Delete feature authorizations and network parameters that are to be set on existing devices (i.e.: they have already bootstrapped), so when a devices next connects, nothing will be applied. <br /><br />All devices that connected before a call to this API was made will <b>not</b> be affected by this.<br /><br /><b>Once deleted, Network Parameters (Security Heartbeat) will revert back to its default value.</b><p><b>Note:</b> Please use the <b>Authorize</b> button at the top of this page to add the time restricted Hexadecimal Authorization Header generated using the Authenticate API also detailed in this document.",
+        "security": [
+          {
+            "authId": []
+          }
+        ],
+        "requestBody": {
+          "description": "<div style=\"font-size:1.2em;\"><b>DeleteProvisioningOnExisting</b> - Request body description.<p>Parameters used in the API call: <ol><li><b>(List of) ROTPublicUIDs </b>[Mandatory]<b>:-</b> <br>The list of <i>(1 to N)</i> ROTPublicUIDs that need to be updated.<br></li></ol> <p>curl example: <div style=\"color:blue\">curl -X POST \"https://ssapi.services.u-blox.com/v1/SetProvisioningOnExisting\" -H \"accept: application/json\" -H \"Authorization: [Authorization Parameter]\" -H \"Content-Type: application/json\" -d \"{ \\\"ROTPublicUIDs\\\": \\\"[ROTPublicUIDs Parameter]\\\"}\"</div><p> See JSON schema examples below:</div>",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ROTPublicUIDs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "example": "0002000089282256",
+                      "pattern": "^(.*)$",
+                      "description": "The list of <i>(1 to N)</i> ROTPublicUIDs that need to be updated."
+                    }
+                  }
+                },
+                "required": [
+                  "ROTPublicUIDs"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Success.</b> <p>To get a successful (200) response the following criteria must be achieved: <ol><li>The URL Header credentials are valid and authorized.</li><li>The ROTPublicUIDs are valid and assigned to the correct client and when set the Authorizations are also valid.</li></ol><p>When the call to the server is successful the following information is returned: <ol><li><b>200 OK</b> status</li></ol></div>"
+          },
+          "400": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Bad Request.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "Message": "Bad Request"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Not Authorized.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errorMessage": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "Message": "Not Authorized: Token Expired"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Not Found.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "Message": "Not Found."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/CreateDeviceProfile": {
+      "post": {
+        "tags": [
+          "DeviceProfile APIs"
+        ],
+        "summary": "Creates a new Device Profile.",
+        "description": "The API call to create a new Device Profile for a specific account.",
+        "security": [
+          {
+            "authId": []
+          }
+        ],
+        "requestBody": {
+          "description": "<div style=\"font-size:1.2em;\"><b>CreateDeviceProfile</b> - Request body description.<p>Parameters used in the API call: <ol><li><b>ProfileName</b> [Mandatory]<b>:-</b><br>The Device Profile name that will be used to references the DeviceProfileUID thst is created.<br><br></li></ol> <p>URL examples:<ol><li>Using ProfileName; <div style=\"color:blue;\">curl -X POST \"https://ucspadminapi-dev.services.u-blox.com/v1/CreateDeviceProfile\" H \"accept: application/json\" -H \"Authorization:[To be defined]\" -H \"Content-Type: application/json\" -d \"{ \\\"ProfileName\\\": \\\"[ProfileName Parameter]\\\"}\"</div></ol><p> See JSON schema examples below:</div>",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ProfileName": {
+                    "type": "string",
+                    "example": "EvaluationProfile",
+                    "description": "The Device Profile name that references the DeviceProfileUID created."
+                  }
+                },
+                "required": [
+                  "ProfileName"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Success.</b> <p>To achieve a successfull (200) response the following criteria must be achieved: <ol><li>The URL Header credentials are valid and authorized.</li><li>The ProfileName is valid.</li></ol> <p>When the call to the server is successful the following information is returned: <ol><li><b>DeviceProfileUID:-</b> The DeviceProfileUID is used to logically group a number of devices - the DeviceProfileUid is sealed into each of the devices to be included in the group.</li><li><b>ProfileName:-</b> The (Reference) Name for the DeviceProfileUID.</li></ol><p>See JSON schema example below:</div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "DeviceProfileUID": {
+                      "type": "string",
+                      "example": "wJQrRxCpUEWZjnqmUOi46g",
+                      "description": "The DeviceProfileUID is used to logically group a number of devices - the DeviceProfileUID is sealed into each of the devices to be included in the group."
+                    },
+                    "ProfileName": {
+                      "type": "string",
+                      "example": "EvaluationProfile",
+                      "description": "The (Reference) Name for the DeviceProfileUID."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Bad Request.</b></div>"
+          },
+          "401": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Not Authorized.</b></div>"
+          },
+          "500": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Internal Server Error.</b></div>"
+          }
+        }
+      }
+    },
+    "/GetDeviceProfiles": {
+      "post": {
+        "tags": [
+          "DeviceProfile APIs"
+        ],
+        "summary": "Get all created Device Profiles.",
+        "description": "The API call to get a list of all created Device Profiles. This API returns a paginated response, which means in order to get to next set of records, you would have to give PageNumber in request body.",
+        "security": [
+          {
+            "authId": []
+          }
+        ],
+        "requestBody": {
+          "description": "<div style=\"font-size:1.2em;\"><b>GetDeviceProfiles</b> - Request body description.<p>Parameters used in the API call: <ol><li><b>PageNumber</b> [Optional]<b>:-</b><br>Defaults to 1 if not given.<br><br></li></ol> <p>URL examples:<ol><li>Using ProfileName; <div style=\"color:blue;\">curl -X POST \"https://ucspadminapi-dev.services.u-blox.com/v1/CreateDeviceProfile\" H \"accept: application/json\" -H \"Authorization:[To be defined]\" -H \"Content-Type: application/json\" -d \"{ \\\"ProfileName\\\": \\\"[ProfileName Parameter]\\\"}\"</div></ol><p> See JSON schema examples below:</div>",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ProfileName": {
+                    "type": "string",
+                    "example": "EvaluationProfile",
+                    "description": "The Device Profile name that references the DeviceProfileUID created."
+                  }
+                },
+                "required": [
+                  "ProfileName"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Success.</b> <p>To achieve a successfull (200) response the following criteria must be achieved: <ol><li>The URL Header credentials are valid and authorized.</li></ol> <p>When the call to the server is successful the following information is returned: <ol><li><b>DeviceProfileUID:-</b> The DeviceProfileUID is used to logically group a number of devices - the DeviceProfileUID is sealed into each of the devices to be included in the group.</li><li><b>ProfileName:-</b> The (Reference) Name for the DeviceProfileUID.</li><li><b>Created:-</b> The date this profile was created.</li><li><b>PageNumber:-</b> Current page number</li><li><b>PageSize:-</b> 100</li><li><b>TotalRecords:-</b> Total number of records available</li></ol><p>See JSON schema example below:</div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "DeviceProfiles": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "DeviceProfileUID": {
+                            "type": "string",
+                            "example": "wJQrRxCpUEWZjnqmUOi46g",
+                            "description": "The DeviceProfileUID is used to logically group a number of devices - the DeviceProfileUID is sealed into each of the devices to be included in the group."
+                          },
+                          "ProfileName": {
+                            "type": "string",
+                            "example": "EvaluationProfile",
+                            "description": "The (Reference) Name for the DeviceProfileUID."
+                          },
+                          "Created": {
+                            "type": "string",
+                            "example": "2019-12-18T09:55:39.344+00:00",
+                            "description": "The date this profile was created."
+                          }
+                        }
+                      }
+                    },
+                    "PageNumber": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "PageSize": {
+                      "type": "integer",
+                      "example": 100
+                    },
+                    "TotalRecords": {
+                      "type": "integer",
+                      "example": 15
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Bad Request.</b></div>"
+          },
+          "401": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Not Authorized.</b></div>"
+          },
+          "500": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Internal Server Error.</b></div>"
+          }
+        }
+      }
+    },
+    "/GetPSK": {
+      "post": {
+        "tags": [
+          "Service APIs"
+        ],
+        "summary": "Get PSK Session Key.",
+        "description": "The API call to get the PSK Session Key. <p><b>Note:</b> Please use the <b>Authorize</b> button at the top of this page to add the time restricted Hexadecimal Authorization Header generated using the Authenticate API also detailed in this document.",
+        "security": [
+          {
+            "authId": []
+          }
+        ],
+        "requestBody": {
+          "description": "<div style=\"font-size:1.2em;\"><b>GetPSK</b> - Request body description.<p>Parameters used in the API call: <ol><li><b>KeyID </b>[Mandatory]<b>:-</b> <br>Key identity used to derive a session Key comprising of 14 bytes. The byte array should be formatted as a Hexadecimal String without a ‘0x’ pattern.<br><br></li><li><b>KeyLength</b> [Optional]<b>:-</b><br>The length of the Key to be generated. The Key length can be either 128 or 256. The default length is 256 and this value will be used if the KeyLength parameter is not included in the GetPSK call.<br><br></li></ol> <p>curl examples: <ol><li>Using KeyID ONLY;<br><div style=\"color:blue;\">curl -X POST \"https://ssapi.services.u-blox.com/v1/GetPSK\" -H \"accept: application/json\" -H \"Authorization: [Authorization Header]\" -H \"Content-Type: application/json\" -d \"{ \\\"KeyID\\\": \\\"[KeyID Parameter]\\\"}\"</div></li><br><li>Using KeyID & KeyLength;<br><div style=\"color:blue;\">curl -X POST \"https://ssapi.services.u-blox.com/v1/GetPSK\" -H \"accept: application/json\" -H \"Authorization: [Authorization Header]\" -H \"Content-Type: application/json\" -d \"{ \\\"KeyID\\\": \\\"[KeyID Parameter]\\\", \\\"KeyLength\\\": \\\"[KeyLength Parameter]\\\"}\"</div></li></ol><p> See JSON schema examples below:</div>",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "KeyID": {
+                    "type": "string",
+                    "example": "1101000005B52001443F8C16C7EC",
+                    "description": "[Mandatory] Key identity used to derive a session Key comprising of 14 bytes. The byte array should be formatted as Hex(adecimal) String format without ‘0x’ pattern."
+                  },
+                  "KeyLength": {
+                    "type": "integer",
+                    "default": 256,
+                    "example": 128,
+                    "description": "[Optional] The length of the Key to be generated. Values can be set to 128 or 256. When not set the default value is 256."
+                  }
+                },
+                "required": [
+                  "KeyID"
+                ]
+              },
+              "examples": {
+                "Using KeyID ONLY": {
+                  "value": "{\n  \"KeyID\": \"1101000005B52001443F8C16C7EC\"\n}"
+                },
+                "Using KeyID & KeyLength": {
+                  "value": "{ \n  \"KeyID\": \"1101000005B52001443F8C16C7EC\",\n  \"KeyLength\": 128 \n}"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Success.</b> <p>To get a successfull (200) response the following criteria must be achieved: <ol><li>The URL Header credentials are valid and authorized.</li><li>The KeyID is valid and assigned to the correct client.</li></ol> <p>When the call to the server is successful the following information is returned: <ol><li><b>Key:-</b> Key value of 16 bytes formatted as Base64 string of 24 characters.</li><li><b>ROTPublicUID:-</b> The Unique Identifier (ROTPublicUID) that is used to uniquely identifies the device.</li></ol><p>See JSON schema example below:</div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Key": {
+                      "type": "string",
+                      "example": "oCa2JO0sqs4F4L//fMScNA==",
+                      "description": "Key value of 16 bytes formatted as Base64 string of 24 characters."
+                    },
+                    "ROTPublicUID": {
+                      "type": "string",
+                      "example": "0002000089282245",
+                      "description": "The ROTPublicUID that uniquely identifies the device."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Bad Request.</b></div>"
+          },
+          "401": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Not Authorized.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errorMessage": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "errorMessage": "{\"status\":401,\"error\":\"Not Authorized: Token Expired\"}"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Forbidden.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errorMessage": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "errorMessage": "{\"status\":403,\"error\":\"PSK Provisioning is not enabled on the device\"}"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Key not found.</b></div>"
+          }
+        }
+      }
+    },
+    "/GetE2EDecryptionParameters": {
+      "post": {
+        "tags": [
+          "Service APIs"
+        ],
+        "summary": "Get E2E decryption parameters.",
+        "description": "The API call used to get the E2E decryption parameters. <p><b>Note:</b> Please use the <b>Authorize</b> button at the top of this page to add the time restricted Hexadecimal Authorization Header generated using the Authenticate API also detailed in this document.",
+        "security": [
+          {
+            "authId": []
+          }
+        ],
+        "requestBody": {
+          "description": "<div style=\"font-size:1.2em;\"><b>GetE2EDecryptionParameters</b> - Request body description.<p>Parameters used in the API call: <ol><li><b>EncryptedHeader </b>[Mandatory]<b>:-</b> <br>How to obtain this value is explained in the supporting AppNote.  The first 16 bytes of the encrypted data header which contains the identity vector used to derive the end to end key. The byte array should be formatted as a Hexadecimal String without a ‘0x’ pattern.<br><br></li></ol> <p>curl example: <ol><li>Using EncryptedHeader ONLY;<div style=\"color:blue\">curl -X POST \"https://ssapi.services.u-blox.com/v1/GetE2EDecryptionParameters\" -H \"accept: application/json\" -H \"Authorization: [Authorization Parameter]\" -H \"Content-Type: application/json\" -d \"{ \\\"EncryptedHeader\\\": \\\"[EncryptedHeader Parameter]\\\"}\"</div></li></ol><p> See JSON schema examples below:</div>",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "EncryptedHeader": {
+                    "type": "string",
+                    "example": "1101000005B5200364B7FDBF77F30000",
+                    "description": "The first 16 bytes of the encrypted data header which contains the identity vector used to derivate end to end key. Should be a 16 Byte array as hex string format without ‘0x’ pattern."
+                  }
+                },
+                "required": [
+                  "EncryptedHeader"
+                ]
+              },
+              "examples": {
+                "Using EncryptedHeader Only": {
+                  "value": "{ \n  \"EncryptedHeader\": \"1101000089282257621f7593c47f0000\"\n} "
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Success.</b> <p>To get a successfull (200) response the following criteria must be achieved: <ol><li>The URL Header credentials are valid and authorized.</li><li>The EncryptedHeader is valid and assigned to the correct client.</li></ol> <p>When the call to the server is successful the following information is returned: <ol><li><b>Nonce:-</b> CCM IV nonce on 12 bytes (Base64 string of 16 characters).</li><li><b>MACLength:-</b> Length of MAC bytes in bits.</li><li><b>CipherSuite:-</b> Cipher suite.</li><li><b>Key:-</b> Key value of 16 bytes (Base64 string of 24 characters).</li><li><b>ROTPublicUID:-</b> The Unique Identifier (ROTPublicUID) that is used to uniquely identify the device.</li></ol><p>See JSON schema example below:</div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Nonce": {
+                      "type": "string",
+                      "example": "BbUgA2S3/b938wAA",
+                      "description": "CCM IV nonce on 12 bytes (Base64 string of 16 characters)"
+                    },
+                    "MACLength": {
+                      "type": "integer",
+                      "example": 128,
+                      "description": "Length of MAC bytes in bits."
+                    },
+                    "CipherSuite": {
+                      "type": "string",
+                      "example": "AES_128_CCM",
+                      "description": "Cipher suite."
+                    },
+                    "Key": {
+                      "type": "string",
+                      "example": "lTZfP2dO5IAXvJT8FlXV5A==",
+                      "description": "Key value of 16 bytes (Base64 string of 24 characters)."
+                    },
+                    "ROTPublicUID": {
+                      "type": "string",
+                      "example": "0002000089282245",
+                      "description": "The ROTPublicUID that uniquely identifies the device."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Bad Request.</b></div>"
+          },
+          "401": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Not Authorized.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errorMessage": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "errorMessage": "{\"status\":401,\"error\":\"Not Authorized: Token Expired\"}"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Forbidden.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errorMessage": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "errorMessage": "{\"status\":403,\"error\":\"E2E encryption is not enabled on the device\"}"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Key not found.</b></div>"
+          }
+        }
+      }
+    },
+    "/GetDeviceInfo": {
+      "post": {
+        "tags": [
+          "Information APIs"
+        ],
+        "summary": "Get aggregated information about the device.",
+        "description": "<div style=\"font-size:1.2em;\">The API call used to get the aggregated information about the device including: <br><br><ol><li>ROT - The Sealed information</li><li>Provisioning State (desired properties, current properties)</li></li></ol> <p><b>Note:</b> Please use the <b>Authorize</b> button at the top of this page to add the time restricted Hexadecimal Authorization Header generated using the Authenticate API also detailed in this document.</div>",
+        "security": [
+          {
+            "authId": []
+          }
+        ],
+        "requestBody": {
+          "description": "<div style=\"font-size:1.2em;\"><b>GetDeviceInfo</b> - Request body description.<p>Parameters used in the API call: <ol><li>ROTPublicUIDs <b>[Mandatory]</b>: <br>A list of Unique Identifiers (RotPublicUID) that are used to uniquely identify the device.<br></li><li>Options <b>[Optional]</b>: <br />To control which set of information will be returned. Current values are: <ol><li>CORE: only ROT related information will be returned</li><li>PROVISIONING: desired properties (what needs to be applied on the device), and current properties (what is applied on the device)</li><li>ADVANCED: this will return all info.</li></ol></li></ol> <p>curl example: <ol><li>Using ROTPublicUIDs; <div style=\"color:blue\">curl -X POST \"https://ssapi.services.u-blox.com/v1/GetDeviceInfo\" -H \"accept: application/json\" -H \"Authorization: [Authorization Parameter]\" -H \"Content-Type: application/json\" -d \"{ \\\"ROTPublicUIDs\\\": \\\"[ROTPublicUID Parameter]\\\"}\"</div></li></ol><p> See JSON schema example below:</div>",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ROTPublicUIDs": {
+                    "description": "The list of Unique Identifier (ROTPublicUID) that is used to uniquely identify the device.",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "ROTPublicUIDs"
+                ]
+              },
+              "example": {
+                "ROTPublicUIDs": [
+                  "0002000089280087"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Success.</b> <p>To get a successfull (200) response the following criteria must be achieved: <ol><li>The URL Header credentials are valid and authorized.</li><li>The ROTPublicUIDs are valid and assigned to the correct client.</li></ol> <p>When the call to the server is successful the following information is returned: <p><b>Note:</b> Unless otherwise stated all the parameters listed below are Mandatory.<ol><li><b>DeviceInfo:-</b> Information retrieved from and about the device.<ol type=\"i\"><br><li><b>ROTPublicUID:-</b> The Unique Identifier (RotPublicUID) that is used to uniquely identify the device.</li><li><b>Core:-</b> The ROT, Device and SCLS information securely sealed in the device<ul style=\"list-style-type:disc;\"><li><b>DeviceProfileUID:-</b> This is the DeviceProfileUID used to logically group a number of devices - the DeviceProfileUID is sealed into each of the devices to be included in the group.  <p>For instances where the DeviceProfileUID was not sealed during the initial bootstrap the value for this parameter is set to: UNATTRIBUTED DEVICE PROFILE.  <p>The DeviceProfileUID can be sealed after bootstrap (known as Two stage bootstrap) - the sealed value will now be returned. <p><b>Note:</b> Please see the supporting AppNote for information on: <ol><li>How to seal the DeviceProfileUID.</li><li>Two stage bootstrap.</li></ol></li><br><li><b>DeviceSerialNumber:-</b> Freehand text serial number provided by the client - this can be created using specific aphanumeric references to the device.</li><li><b>IMEI:-</b> <i>[Internal use - please ignore] </i></li><li><b>SerialNumber:-</b> <i>[Internal use - please ignore] </i></li><li><b>Version:-</b> <i>[Internal use - please ignore] </i></li></li></ul></li><br><li><b>CurrentProperties:-</b> The current status of the security services on the device. <p><b>Note:</b> Currently only the Local Encryption security service can be listed. <p><b>To confirm:</b> <br>No <b>CurrentProperties</b> payload information will be returned if <b>nothing</b> (no feature authorizations for the security services) has been set on the device. In all other instances the <b>CurrentProperties</b> payload will be returned.<ul><li><b>Authorizations:-</b><ul><li><b>Localencryption:- </b>The name of the security service.<ul><li><b>Status:- </b>The current status of the security service.</li><li><b>AllowedKeySlots:- </b>A list of allowed key slots.</li><li><b>SyncDate:- </b>The date the device was updated.</li></ul></li></ul></li><li><b>NetworkParameters:-</b><ul><li><b>SecurityHeartbeatInSec:-</b><ul><li><b>SyncDate:-</b> The date the device was updated</li></ul></li></ul></li></ul></ul></li><br><li><b>DesiredProperties:-</b> The latest changes submitted to the server that will be used to update the security services on the device the next time it successfully contacts the server. <p><b>Note:</b> Currently only the Local Encryption security service can be updated. In addition, NetworkParameters can be updated.<br/><br/>Desired Properties set using \"SetProvisioningOnExisting\" API will take precedence over properties set using \"SetProvisioningOnBootstrap\" API.<br/><br />If a device does not support one of the security features, \"DesiredProperties\" will contain additional information (properties) to reflect that. <p><b>To confirm:</b> <br>No <b>DesiredProperties</b> payload information will be returned if: <ul><li><b>no</b> updates (no desired feature authorizations for the security services) have been requested on the server</li><li>DesiredProperties and CurrentProperties are the <b>same</b></li></ul><br /> In all other instances the <b>DesiredProperties</b> payload will be returned.<ul><li><b>Authorizations:-</b><ul><li><b>Localencryption:- </b>The name of the security service to be updated<ul><li><b>Status:- </b>The new status for the sercurity service</li><li><b>AllowedKeySlots:- </b>A list of allowed slots.</li><li><b>ModifiedDate:- </b>The date the change was requested. This is not the date when the device was updated - it will only be updated the next time it successfully contacts the server.</li></ul></li></ul></li><li><b>NetworkParameters:-</b><ul><li><b>SecurityHeartbeatInSec:-</b><ul><li><b>ModifiedDate:-</b> The date the the change was requested.</li></ul></li></ul></li></ul></li></ul></li><li><b>ErrorProperties:-</b> Any feature authorization that is not supported by the device (ROTPublicUID), which was set at bootstrap, will be shown here.</ul></li></ol></li></ol><p>See JSON schema example below:</div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "DeviceInfo": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "ROTPublicUID": {
+                            "type": "string",
+                            "example": "0002000089280087",
+                            "pattern": "^(.*)$"
+                          },
+                          "Core": {
+                            "type": "object",
+                            "properties": {
+                              "DeviceProfileUID": {
+                                "type": "string",
+                                "example": "UNATTRIBUTED DEVICE PROFILE",
+                                "pattern": "^(.*)$"
+                              },
+                              "SerialNumber": {
+                                "type": "string",
+                                "example": "22220001",
+                                "pattern": "^(.*)$"
+                              },
+                              "IMEI": {
+                                "type": "string",
+                                "example": 159621100013519,
+                                "pattern": "^(.*)$"
+                              },
+                              "DeviceSerialNumber": {
+                                "type": "string",
+                                "example": "22220001",
+                                "pattern": "^(.*)$"
+                              },
+                              "ROTVersion": {
+                                "type": "string",
+                                "example": "1",
+                                "pattern": "^(.*)$"
+                              },
+                              "Version": {
+                                "type": "string",
+                                "example": "R-CHIBP-BDNAA",
+                                "pattern": "^(.*)$"
+                              }
+                            }
+                          },
+                          "CurrentProperties": {
+                            "type": "object",
+                            "properties": {
+                              "Authorizations": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "Name": {
+                                      "type": "string",
+                                      "example": "LocalEncryption"
+                                    },
+                                    "State": {
+                                      "type": "string",
+                                      "example": "ENABLED"
+                                    },
+                                    "AllowedKeySlots": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "integer"
+                                      }
+                                    },
+                                    "SyncDate": {
+                                      "type": "string",
+                                      "example": "2020-01-10T15:43:38Z"
+                                    }
+                                  }
+                                }
+                              },
+                              "NetworkParameters": {
+                                "type": "object",
+                                "properties": {
+                                  "SecurityHeartbeat": {
+                                    "type": "object",
+                                    "properties": {
+                                      "SecurityHeartbeatInSec": {
+                                        "type": "integer",
+                                        "example": 89000
+                                      },
+                                      "SyncDate": {
+                                        "type": "string",
+                                        "example": "2020-02-12T14:20:07.813+00:00"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "DesiredProperties": {
+                            "type": "object",
+                            "properties": {
+                              "Authorizations": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "Name": {
+                                      "type": "string",
+                                      "example": "LocalEncryption"
+                                    },
+                                    "State": {
+                                      "type": "string",
+                                      "example": "ENABLED"
+                                    },
+                                    "ModifiedDate": {
+                                      "type": "string",
+                                      "example": "2020-01-10T15:43:38Z"
+                                    }
+                                  }
+                                }
+                              },
+                              "NetworkParameters": {
+                                "type": "object",
+                                "properties": {
+                                  "SecurityHeartbeat": {
+                                    "type": "object",
+                                    "properties": {
+                                      "SecurityHeartbeatInSec": {
+                                        "type": "integer",
+                                        "example": 89000
+                                      },
+                                      "ModifiedDate": {
+                                        "type": "string",
+                                        "example": "2020-02-12T14:20:07.813+00:00"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "ErrorProperties": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "Name": {
+                                  "type": "string",
+                                  "example": "LocalEncryption"
+                                },
+                                "Error": {
+                                  "type": "string",
+                                  "example": "This feature is not supported for this ROTPublicUID."
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Bad Request.</b></div>"
+          },
+          "401": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Not Authorized.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "message": "Not Authorized"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "<div style=\"font-size:1.2em;\"><b>ROTPublicUID Not Found.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errorMessage": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "message": "Not Found"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/GetDeviceNotifications": {
+      "post": {
+        "tags": [
+          "Information APIs"
+        ],
+        "summary": "Get device notifications.",
+        "description": "The API call to get device notifications. Whenever a device bootstraps (its INFO changes), or some properties get applied on the device, a notification is received, which can be retrieved using this API. <p><b>Note:</b> Please use the <b>Authorize</b> button at the top of this page to add the time restricted Hexadecimal Authorization Header generated using the Authenticate API also detailed in this document.",
+        "security": [
+          {
+            "authId": []
+          }
+        ],
+        "requestBody": {
+          "description": "<div style=\"font-size:1.2em;\"><b>GetDeviceNotifications</b> - Request body description.<p>Parameters used in the API call: <ol><li><b>FromDate </b>[Mandatory]<b>:-</b> <br>Starting date in ISO 8601 standard.<br><br></li><li><b>ToDate</b> [Mandatory]<b>:-</b><br>End date in ISO 8601 standard.<br><br></li><li><b>ROTPublicUID </b>[Mandatory]<b>:-</b> <br>Notifications will be retrieved for given ROTPublicUID.<br><br></li><li><b>NotificationType </b>[Optional]<b>:-</b> <br>The type of notification to get. Possible values are: <ol><li>DEVICE_STATE_CHANGE</li><li>DEVICE_INFO_CHANGE</li><li>DEVICE_PROPERTIES_CHANGE</li></ol><br><br></li></ol> <p>curl example: <ol><li><div style=\"color:blue;\">curl -X POST \"https://ssapi.services.u-blox.com/v1/GetDeviceNotifications\" -H \"accept: application/json\" -H \"Authorization: [Authorization Header]\" -H \"Content-Type: application/json\" -d \"{ \\\"FromDate\\\": \\\"[FromDate Parameter]\\\" \\\"ToDate\\\": \\\"[ToDate Parameter]\\\" \\\"ROTPublicUID\\\": \\\"[ROTPublicUID Parameter]\\\"}\"</div></li></div></li></ol><p> See JSON schema examples below:</div>",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "FromDate": {
+                    "type": "string",
+                    "example": "2020-02-01T00:00:00+00:00",
+                    "description": "Go back to this date and get notifications that came in after."
+                  },
+                  "ToDate": {
+                    "type": "string",
+                    "example": "2020-03-01T23:59:00+00:00",
+                    "description": "Get notifications till this date."
+                  },
+                  "ROTPublicUID": {
+                    "type": "string",
+                    "example": "0000200456789544",
+                    "description": "ROTPublicUID of the device"
+                  },
+                  "NotificationType": {
+                    "type": "string",
+                    "example": "DEVICE_INFO_CHANGE",
+                    "description": "Get only this type of notification. Possible values are: <ol><li>DEVICE_STATE_CHANGE</li><li>DEVICE_INFO_CHANGE</li><li>DEVICE_PROPERTIES_CHANGE</li></ol>"
+                  }
+                },
+                "required": [
+                  "FromDate",
+                  "ToDate",
+                  "ROTPublicUID"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Success.</b> <p>To get a successfull (200) response the following criteria must be achieved: <ol><li>The URL Header credentials are valid and authorized.</li><li>The ROTPublicUID is valid and assigned to the correct client.</li></ol><p>See JSON schema example below for a successfull response:</div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "NotificationType": {
+                      "type": "string",
+                      "example": "DEVICE_STATE_CHANGE"
+                    },
+                    "ROTPublicUID": {
+                      "type": "string",
+                      "example": "0002000089280091"
+                    },
+                    "Timestamp": {
+                      "type": "string",
+                      "example": "2020-02-28T10:22Z"
+                    },
+                    "PreviousState": {
+                      "type": "string",
+                      "example": "REGISTERED"
+                    },
+                    "CurrentState": {
+                      "type": "string",
+                      "example": "ACTIVATED"
+                    },
+                    "DesiredProperties": {
+                      "type": "object",
+                      "properties": {
+                        "Authorizations": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "Name": {
+                                "type": "string",
+                                "example": "LocalEncryption"
+                              },
+                              "State": {
+                                "type": "string",
+                                "example": "ENABLED"
+                              },
+                              "ModifiedDate": {
+                                "type": "string",
+                                "example": "2020-02-28T10:22:30Z"
+                              }
+                            }
+                          }
+                        },
+                        "NetworkParameters": {
+                          "type": "object",
+                          "properties": {
+                            "CoapMTU": {
+                              "type": "object",
+                              "properties": {
+                                "CoapMTUInBytes": {
+                                  "type": "integer",
+                                  "example": 520
+                                },
+                                "ModifiedDate": {
+                                  "type": "string",
+                                  "example": "2020-02-28T10:22:30Z"
+                                }
+                              }
+                            },
+                            "CoapTimeout": {
+                              "type": "object",
+                              "properties": {
+                                "CoapTimeoutInSec": {
+                                  "type": "integer",
+                                  "example": 30
+                                },
+                                "ModifiedDate": {
+                                  "type": "string",
+                                  "example": "2020-02-28T10:22:30Z"
+                                }
+                              }
+                            },
+                            "SecurityHeartbeat": {
+                              "type": "object",
+                              "properties": {
+                                "SecurityHeartbeatInSec": {
+                                  "type": "integer",
+                                  "example": 86400
+                                },
+                                "ModifiedDate": {
+                                  "type": "string",
+                                  "example": "2020-02-28T10:22:30Z"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "CurrentProperties": {
+                      "type": "object",
+                      "properties": {
+                        "Authorizations": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "Name": {
+                                "type": "string",
+                                "example": "LocalEncryption"
+                              },
+                              "State": {
+                                "type": "string",
+                                "example": "ENABLED"
+                              },
+                              "SyncDate": {
+                                "type": "string",
+                                "example": "2020-02-28T10:22:30Z"
+                              }
+                            }
+                          }
+                        },
+                        "NetworkParameters": {
+                          "type": "object",
+                          "properties": {
+                            "CoapMTU": {
+                              "type": "object",
+                              "properties": {
+                                "CoapMTUInBytes": {
+                                  "type": "integer",
+                                  "example": 520
+                                },
+                                "SyncDate": {
+                                  "type": "string",
+                                  "example": "2020-02-28T10:22:30Z"
+                                }
+                              }
+                            },
+                            "CoapTimeout": {
+                              "type": "object",
+                              "properties": {
+                                "CoapTimeoutInSec": {
+                                  "type": "integer",
+                                  "example": 30
+                                },
+                                "SyncDate": {
+                                  "type": "string",
+                                  "example": "2020-02-28T10:22:30Z"
+                                }
+                              }
+                            },
+                            "SecurityHeartbeat": {
+                              "type": "object",
+                              "properties": {
+                                "SecurityHeartbeatInSec": {
+                                  "type": "integer",
+                                  "example": 86400
+                                },
+                                "SyncDate": {
+                                  "type": "string",
+                                  "example": "2020-02-28T10:22:30Z"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "PreviousDeviceInfo": {
+                      "type": "object",
+                      "properties": {
+                        "ROTVersion": {
+                          "type": "string",
+                          "example": "01.04.00"
+                        },
+                        "TypeNumber": {
+                          "type": "string",
+                          "example": "SARA-R410M-03B-00"
+                        },
+                        "SerialNumber": {
+                          "type": "string",
+                          "example": "4017916230"
+                        },
+                        "Version": {
+                          "type": "string",
+                          "example": "R-CHIBP-BDNAA"
+                        },
+                        "IMEI": {
+                          "type": "string",
+                          "example": "159621100013519"
+                        },
+                        "DeviceProfileUID": {
+                          "type": "string",
+                          "example": "AyvylmHTdViHQzeUaC1Omb"
+                        },
+                        "DeviceSerialNumber": {
+                          "type": "string",
+                          "example": "12345678"
+                        }
+                      }
+                    },
+                    "CurrentDeviceInfo": {
+                      "type": "object",
+                      "properties": {
+                        "ROTVersion": {
+                          "type": "string",
+                          "example": "01.04.00"
+                        },
+                        "TypeNumber": {
+                          "type": "string",
+                          "example": "SARA-R410M-03B-00"
+                        },
+                        "SerialNumber": {
+                          "type": "string",
+                          "example": "4017916230"
+                        },
+                        "Version": {
+                          "type": "string",
+                          "example": "R-CHIBP-BDNAA"
+                        },
+                        "IMEI": {
+                          "type": "string",
+                          "example": "159621100013519"
+                        },
+                        "DeviceProfileUID": {
+                          "type": "string",
+                          "example": "AyvylmHTdViHQzeUaC1Omb"
+                        },
+                        "DeviceSerialNumber": {
+                          "type": "string",
+                          "example": "12345678"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Bad Request.</b></div>"
+          },
+          "401": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Not Authorized.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Not Authorized: Token Expired"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Not found.</b></div>"
+          }
+        }
+      }
+    },
+    "/GetUsageLogs": {
+      "post": {
+        "tags": [
+          "Information APIs"
+        ],
+        "summary": "Get usage logs.",
+        "description": "The API call to get usage logs, aggregated by device (ROTPublicUID). There is a 5 minute lead time before logs get updated. A usage log is generated when following APIs are called:<ol><li>/GetPSK</li><li>/GetE2EDecryptionParameters</li><li>When you enable \"LocalEncryption\" and it gets applied on the device</li></ol> <p><b>Note:</b> Please use the <b>Authorize</b> button at the top of this page to add the time restricted Hexadecimal Authorization Header generated using the Authenticate API also detailed in this document.",
+        "security": [
+          {
+            "authId": []
+          }
+        ],
+        "requestBody": {
+          "description": "<div style=\"font-size:1.2em;\"><b>GetUsageLogs</b> - Request body description.<p>Parameters used in the API call: <ol><li><b>Date </b>[Mandatory]<b>:-</b> <br>To get usage logs of this date. Format of the date is <b>yyyy-mm-dd</b>.</li></ol><br><p>curl example: <ol><li><div style=\"color:blue;\">curl -X POST \"https://ssapi.services.u-blox.com/v1/GetUsageLogs\" -H \"accept: application/json\" -H \"Authorization: [Authorization Header]\" -H \"Content-Type: application/json\" -d \"{ \\\"Date\\\": \\\"[Date Parameter]\\\"}\"</div></li></div></li></ol><p> See JSON schema examples below:</div>",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "Date": {
+                    "type": "string",
+                    "example": "2020-02-01",
+                    "description": "Get usage logs of this date."
+                  }
+                },
+                "required": [
+                  "Date"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Success.</b> <p>To get a successfull (200) response the following criteria must be achieved: <ol><li>The URL Header credentials are valid and authorized.</li><li>The Date is valid.</li></ol><p>See JSON schema example below for a successfull response:</div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "date": {
+                      "type": "string",
+                      "example": "2020-02-01"
+                    },
+                    "contractID": {
+                      "type": "string",
+                      "example": "12"
+                    },
+                    "devices": {
+                      "type": "object",
+                      "properties": {
+                        "ROTPublicUID": {
+                          "type": "object",
+                          "properties": {
+                            "CEL-SEC-E2EE": {
+                              "type": "integer",
+                              "example": 3
+                            },
+                            "CEL-SEC-PSKP": {
+                              "type": "integer",
+                              "example": 3
+                            },
+                            "CEL-SEC-LENC": {
+                              "type": "integer",
+                              "example": 2
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "<div style=\"font-size:1.2em;\"><b><ul><li>Bad Request. Date should be in the format yyyy-mm-dd</li><li>Invalid Date</li></ul></b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Bad Request. Date should be in the format yyyy-mm-dd or yyyy/mm/dd"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Not Authorized.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Not Authorized: Token Expired"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "<div style=\"font-size:1.2em;\"><b>No usage logs found for the requested date</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "No usage logs found for the requested date"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/GetROTPublicUIDs": {
+      "post": {
+        "tags": [
+          "Information APIs"
+        ],
+        "summary": "Get the ROTPublicUIDs for a device profile.",
+        "description": "Lists the ROTPublicUIDs linked to a DeviceProfileUID. This API returns a paginated response, which means in order to get to next set of records, you would have to give PageNumber in request body. <p><b>Note:</b> Please use the <b>Authorize</b> button at the top of this page to add the time restricted Hexadecimal Authorization Header generated using the Authenticate API also detailed in this document.",
+        "security": [
+          {
+            "authId": []
+          }
+        ],
+        "requestBody": {
+          "description": "<div style=\"font-size:1.2em;\"><b>GetROTPublicUIDs</b> - Request body description.<p>Parameters used in the API call: <ol><li><b>DeviceProfileUID </b>[Mandatory]<b>:-</b> <br>This is the DeviceProfileUID used to logically group a number of devices - the DeviceProfileUID is sealed into each of the devices to be included in the group.  <p>For instances where the DeviceProfileUID was not sealed during the initial bootstrap the value for this parameter is set to: UNATTRIBUTED DEVICE PROFILE.  <p>The DeviceProfileUID can be sealed after bootstrap (known as Two stage bootstrap) - the sealed value will now be returned. <p><b>Note:</b> Please see the supporting AppNote for information on: <ol><li>How to seal the DeviceProfileUID.</li><li>Two stage bootstrap.<br></li></ol><li><b>PageNumber:-</b> [Optional] Defaults to 1 if not given</li></ol> <p>curl example: <div style=\"color:blue\">curl -X POST \"https://ssapi.services.u-blox.com/v1/GetROTPublicUIDs\" -H \"accept: application/json\" -H \"Authorization: [Authorization Parameter]\" -H \"Content-Type: application/json\" -d \"{ \\\"DeviceProfileUID\\\": \\\"[DeviceProfileUID Parameter]\\\"}\"</div><p> See JSON schema examples below:</div>",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "DeviceProfileUID": {
+                    "type": "string",
+                    "example": "mbYbAX-CoEqE97TMFBsUKQ",
+                    "description": "This is the DeviceProfileUID used to group 1 to [N] devices - the DeviceProfileUID is sealed in each device that is to be included in the group."
+                  }
+                },
+                "required": [
+                  "DeviceProfileUID"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Success.</b> <p>To get a successful (200) response the following criteria must be achieved: <ol><li>The URL Header credentials are valid and authorized.</li><li>The DeviceProfileUID is valid and assigned to the correct client.</li></ol> <p>When the call to the server is successful the following information is returned: <ol><li><b>ROTPublicUIDs:-</b> A list of ROTPublicUIDs for the DeviceProfileUID passed in the API call.  To be included in the list the DeviceProfileUID must be sealed in the relevant devices</li></ol><p>See JSON schema example below:</div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ROTPublicUIDs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "example": "0002000089282256",
+                        "pattern": "^(.*)$"
+                      }
+                    },
+                    "PageNumber": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "PageSize": {
+                      "type": "integer",
+                      "example": 100
+                    },
+                    "TotalRecords": {
+                      "type": "integer",
+                      "example": 311
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Bad Request.</b></div>"
+          },
+          "401": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Not Authorized.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errorMessage": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "errorMessage": "{\"status\":401,\"error\":\"Not Authorized: Token Expired\"}"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "<div style=\"font-size:1.2em;\"><b>DeviceProfileUID Not Found.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errorMessage": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "errorMessage": "{\"status\":404,\"error\":\"Not Found.\"}"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/GetAPIVersion": {
+      "post": {
+        "tags": [
+          "Information APIs"
+        ],
+        "summary": "Get current API version.",
+        "description": "The API call to get current API version.<p><b>Note:</b> Please use the <b>Authorize</b> button at the top of this page to add the time restricted Hexadecimal Authorization Header generated using the Authenticate API also detailed in this document.",
+        "security": [
+          {
+            "authId": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Success.</b> <p>To get a successfull (200) response the following criteria must be achieved: <ol><li>The URL Header credentials are valid and authorized.</li></ol><p>See JSON schema example below:</div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Version": {
+                      "type": "string",
+                      "example": "1.1.1"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Bad Request.</b></div>"
+          },
+          "401": {
+            "description": "<div style=\"font-size:1.2em;\"><b>Not Authorized.</b></div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "message": "Not Authorized."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
